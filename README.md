@@ -1,0 +1,2 @@
+# SciChat
+Chat logging
