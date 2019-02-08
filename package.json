@@ -1,0 +1,19 @@
+{
+  "name": "sci-chat",
+  "version": "1.0.0",
+  "scripts": {
+    "test": "mocha"
+  },
+  "dependencies": {
+    "matrix-js-sdk": "^0.14.3"
+  },
+  "devDependencies": {
+    "mocha": "^5.2.0",
+    "supertest": "^3.4.2"
+  },
+  "repository": {
+    "type": "",
+    "url": ""
+  },
+  "license": ""
+}

@@ -20,6 +20,9 @@ client.startClient({
 client.once('sync', function (state, prevState, res) {
     if (state === 'PREPARED') {
         console.log('prepared');
+
+        // TODO find a way to list the entire chat log instead of just most recent
+
         // let rooms = client.getRooms();
         // let thisThing = rooms[0].getLiveTimeline();
         // thisThing.forEach(matrixEvent => {
