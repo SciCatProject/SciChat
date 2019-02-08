@@ -85,4 +85,7 @@ modules.xml
 # Ignore Authentication Data File
 AuthData.js
 
+# Ignore node_modules
+node_modules/
+
 # End of https://www.gitignore.io/api/webstorm+all
