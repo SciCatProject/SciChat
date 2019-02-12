@@ -5,9 +5,11 @@
     "test": "mocha"
   },
   "dependencies": {
-    "matrix-js-sdk": "^0.14.3"
+    "matrix-js-sdk": "^0.14.3",
+    "rxjs": "^6.4.0"
   },
   "devDependencies": {
+    "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "supertest": "^3.4.2"
   },

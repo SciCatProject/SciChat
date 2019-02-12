@@ -3,7 +3,7 @@
 const sdk = require('matrix-js-sdk');
 const authData = require('./AuthData');
 
-let baseUrl = 'https://matrix.org';
+let baseUrl = authData.baseUrl;
 let accessToken = authData.accessToken;
 let userId = authData.userId;
 

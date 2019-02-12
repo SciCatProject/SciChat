@@ -8,12 +8,6 @@ const sdk = require('matrix-js-sdk');
 const authData = require('../src/AuthData');
 const app = require('../src/SciChat');
 
-describe('smoke test', function () {
-    it('checks equality', function () {
-        expect(true).to.be.true;
-    });
-});
-
 // describe('Data fetching test', function () {
 //     before(function (done) {
 //         let baseUrl = 'https://matrix.org';
