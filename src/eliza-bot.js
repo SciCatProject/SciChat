@@ -1,6 +1,7 @@
 const MatrixClient = require('matrix-bot-sdk').MatrixClient;
 const AutojoinRoomsMixin = require('matrix-bot-sdk').AutojoinRoomsMixin;
-let accessToken = 'MDAxOGxvY2F0aW9uIG1hdHJpeC5vcmcKMDAxM2lkZW50aWZpZXIga2V5CjAwMTBjaWQgZ2VuID0gMQowMDJmY2lkIHVzZXJfaWQgPSBAaGVucmlrLmpvaGFuc3NvbjptYXRyaXgub3JnCjAwMTZjaWQgdHlwZSA9IGFjY2VzcwowMDIxY2lkIG5vbmNlID0gREo4cjt5dXUjMTQzNyYrTQowMDJmc2lnbmF0dXJlICgnZQkM81cW2-8XTVjCuWE4bzdzSZSJU5DUWBDResBTCg';
+const authData = require('AuthData');
+let accessToken = authData.accessToken;
 
 const client = new MatrixClient('https://matrix.org', accessToken);
 AutojoinRoomsMixin.setupOnClient(client);
