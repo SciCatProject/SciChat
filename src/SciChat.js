@@ -17,39 +17,30 @@ let roomList = [];
 let viewingRoom = null;
 let numMessagesToShow = 20;
 
-client.on('sync', async function (state, prevState, data) {
+client.on('sync', function (state, prevState, data) {
     switch (state) {
+        case 'CATCHUP':
+            console.log('Connection found, retrying sync');
+            break;
+        case 'ERROR':
+            console.log(state + ': Could not connect to server');
+            break;
         case 'PREPARED':
-            let roomToScrollback = client.getRooms()[0];
-            let room = await client.scrollback(roomToScrollback);
-            let roomLiveTimeline = room.getLiveTimeline();
-            let events = roomLiveTimeline.getEvents();
-            events.forEach(event => {
-                if (event.getType() === 'm.room.message') {
-                    console.log(event.event.content.body)
-                }
-            });
+            console.log(state);
+            printChatLog();
             setRoomList();
             printRoomList();
             break;
+        case 'RECONNECTING':
+            console.log(state + ': connection lost');
+            break;
+        case 'STOPPED':
+            console.log('Syncing stopped');
+            break;
+        case 'SYNCING':
+            console.log(state);
+            break;
     }
-});
-
-// client.on('Room', function () {
-//     setRoomList();
-//     if (!viewingRoom) {
-//         printRoomList();
-//     }
-// });
-
-client.on('Room.timeline', function (event, room, toStartOfTimeline) {
-    if (toStartOfTimeline) {
-        return;
-    }
-    if (!viewingRoom || viewingRoom.roomId !== room.roomId) {
-        return;
-    }
-    printLine(event);
 });
 
 function setRoomList() {
@@ -76,41 +67,6 @@ function printRoomList() {
     }
 }
 
-client.startClient(numMessagesToShow);
-
-// client.startClient({
-//     initialSyncLimit: 10
-// });
-//
-// client.once('sync', function (state, prevState, res) {
-//     if (state === 'PREPARED') {
-//         console.log('prepared');
-//
-//         // let rooms = client.getRooms();
-//         // let thisThing = rooms[0].getLiveTimeline();
-//         // thisThing.forEach(matrixEvent => {
-//         //     console.log(matrixEvent.event.content.body);
-//         // });
-//         // console.log(thisThing);
-//         // console.log(rooms[0].getTimelineSets());
-//         // let timelineWindow = sdk.TimelineWindow(client, rooms[0].getTimelineSets());
-//         // console.log(timelineWindow.canPaginate(sdk.EventTimeline.BACKWARDS));
-//
-//     } else {
-//         console.log(state);
-//         process.exit(1);
-//     }
-// });
-//
-//     // let rooms = client.getRooms();
-//     // client.paginateEventTimeline(rooms[0].timeline, {
-//     //     backwards: true,
-//     //     limit: 1000
-//     // });
-//
-//
-// // showAllMessages();
-//
 // // findByDate('04 Feb 2019');
 //
 // function showAllMessages() {
@@ -160,19 +116,26 @@ client.startClient(numMessagesToShow);
 //         }
 //     });
 // }
-//
-// function printChatLog(room) {
-//     let events = room.getLiveTimeline().getEvents();
-//     events.forEach(event => {
-//         let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
-//         messageTimeStamp.setUTCHours(messageTimeStamp.getUTCHours() + 1);
-//         let messageTimeStampSplit = messageTimeStamp.toISOString().split(/[T.]+/);
-//         let sender = event.event.sender.split(/[@:]+/)[1];
-//
-//         if (event.event.sender === userId) {
-//             console.log(`[${messageTimeStampSplit[0]}, ${messageTimeStampSplit[1]}] ${sender} >>> ${event.event.content.body}`);
-//         } else {
-//             console.log(`[${messageTimeStampSplit[0]}, ${messageTimeStampSplit[1]}] ${sender} <<< ${event.event.content.body}`);
-//         }
-//     });
-// }
+
+async function printChatLog() {
+    let roomToScrollback = client.getRooms()[0];
+    let room = await client.scrollback(roomToScrollback);
+    let roomLiveTimeline = room.getLiveTimeline();
+    let events = roomLiveTimeline.getEvents();
+    events.forEach(event => {
+        if (event.getType() === 'm.room.message') {
+            let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
+            messageTimeStamp.setUTCHours(messageTimeStamp.getUTCHours() + 1);
+            let messageTimeStampSplit = messageTimeStamp.toISOString().split(/[T.]+/);
+            let sender = event.event.sender.split(/[@:]+/)[1];
+
+            if (event.event.sender === userId) {
+                console.log(`[${messageTimeStampSplit[0]}, ${messageTimeStampSplit[1]}] ${sender} >>> ${event.event.content.body}`);
+            } else {
+                console.log(`[${messageTimeStampSplit[0]}, ${messageTimeStampSplit[1]}] ${sender} <<< ${event.event.content.body}`);
+            }
+        }
+    });
+}
+
+client.startClient(numMessagesToShow);
