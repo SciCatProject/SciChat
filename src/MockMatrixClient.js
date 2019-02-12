@@ -1,20 +1,18 @@
 const rxjs = require('rxjs');
-const authData = require('AuthData');
+const authData = require('../src/AuthData');
 
 let of = rxjs.of;
 
+let baseUrl = authData.baseUrl;
+let accessToken = authData.accessToken;
+let userId = authData.userId;
+
 module.exports = class MockMatrixClient {
 
-    constructor() {
-        this.baseUrl = authData.baseUrl;
-        this.accessToken = authData.accessToken;
-        this.userId = authData.userId;
-    }
-
     createClient(opts) {
-        if (opts.baseUrl === this.baseUrl
-            && opts.accessToken === this.accessToken
-            && opts.userId === this.userId) {
+        if (opts.baseUrl === baseUrl
+            && opts.accessToken === accessToken
+            && opts.userId === userId) {
             return of('PREPARED');
         } else {
             return of('STOPPED');

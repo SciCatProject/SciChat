@@ -48,7 +48,7 @@ client.once('sync', function (state, prevState, res) {
 
 // showAllMessages();
 
-findByDate('04 Feb 2019');
+// findByDate('04 Feb 2019');
 
 function showAllMessages() {
     client.on('Room.timeline', function (event, room, toStartOfTimeline) {

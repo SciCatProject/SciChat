@@ -6,26 +6,39 @@ const request = require('supertest');
 
 const sdk = require('../src/MockMatrixClient');
 const authData = require('../src/AuthData');
-const app = require('../src/SciChat');
+// const app = require('../src/SciChat');
 
-describe('Simple test using mock API', function () {
-    it('should return the value `PREPARED`', function (done) {
-        let state = sdk.prototype.createClient({
-            baseUrl: authData.baseUrl,
-            accessToken: authData.accessToken,
-            userId: authData.userId
+describe('Simple test of function createClient using mock API', function () {
+    describe('#createClient()', function () {
+        it('valid authentication should return the state `PREPARED`', function (done) {
+            let state = sdk.prototype.createClient({
+                baseUrl: authData.baseUrl,
+                accessToken: authData.accessToken,
+                userId: authData.userId
+            });
+            expect(state.value).to.equal('PREPARED');
+            done();
         });
-        expect(state).to.equal('PREPARED');
-        done();
+
+        it('invalid authentication should return the state `STOPPED`', function (done) {
+            let state = sdk.prototype.createClient({
+                baseUrl: authData.baseUrl,
+                accessToken: "123",
+                userId: authData.userId
+            });
+            expect(state.value).to.equal('STOPPED');
+            done();
+        });
     });
-    it('should return the value `STOPPED`', function (done) {
-        let state = sdk.prototype.createClient({
-            baseUrl: authData.baseUrl,
-            accessToken: "123",
-            userId: authData.userId
+
+    describe('#getRooms()', function () {
+        it('should return an array of objects containing userId, roomId and room name', function (done) {
+            let rooms = sdk.prototype.getRooms();
+            expect(rooms.value).to.be.an('array');
+            expect(rooms.value[0]).to.be.an('object');
+            expect(rooms.value[0]).to.include({name: 'First room'});
+            done();
         });
-        expect(state).to.equal('STOPPED');
-        done();
     });
 });
 
