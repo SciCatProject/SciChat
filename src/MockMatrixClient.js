@@ -5,16 +5,16 @@ let of = rxjs.of;
 
 module.exports = class MockMatrixClient {
 
-    opts = {
-        baseUrl: authData.baseUrl,
-        accessToken: authData.accessToken,
-        userId: authData.userId
-    };
+    constructor() {
+        this.baseUrl = authData.baseUrl;
+        this.accessToken = authData.accessToken;
+        this.userId = authData.userId;
+    }
 
     createClient(opts) {
-        if (opts.baseUrl === this.opts.baseUrl
-            && opts.accessToken === this.opts.accessToken
-            && opts.userId === this.opts.userId) {
+        if (opts.baseUrl === this.baseUrl
+            && opts.accessToken === this.accessToken
+            && opts.userId === this.userId) {
             return of('PREPARED');
         } else {
             return of('STOPPED');

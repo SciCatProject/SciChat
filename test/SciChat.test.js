@@ -4,9 +4,30 @@ const chai = require('chai');
 const expect = chai.expect;
 const request = require('supertest');
 
-const sdk = require('matrix-js-sdk');
+const sdk = require('../src/MockMatrixClient');
 const authData = require('../src/AuthData');
 const app = require('../src/SciChat');
+
+describe('Simple test using mock API', function () {
+    it('should return the value `PREPARED`', function (done) {
+        let state = sdk.prototype.createClient({
+            baseUrl: authData.baseUrl,
+            accessToken: authData.accessToken,
+            userId: authData.userId
+        });
+        expect(state).to.equal('PREPARED');
+        done();
+    });
+    it('should return the value `STOPPED`', function (done) {
+        let state = sdk.prototype.createClient({
+            baseUrl: authData.baseUrl,
+            accessToken: "123",
+            userId: authData.userId
+        });
+        expect(state).to.equal('STOPPED');
+        done();
+    });
+});
 
 // describe('Data fetching test', function () {
 //     before(function (done) {
