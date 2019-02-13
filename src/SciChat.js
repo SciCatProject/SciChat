@@ -13,7 +13,7 @@ const client = sdk.createClient({
   userId: userId
 });
 
-let roomList = [];
+let rooms = [];
 let viewingRoom = null;
 let numMessagesToShow = 20;
 
@@ -27,8 +27,8 @@ client.on("sync", function(state, prevState, data) {
       break;
     case "PREPARED":
       console.log(state);
-      setRoomList();
-      printRoomList();
+      setRooms();
+      printRooms();
       printChatLog();
       findMessagesByDate("04 Feb 2019");
       findMessagesByDateRange("04 Feb 2019", "05 Feb 2019");
@@ -45,22 +45,27 @@ client.on("sync", function(state, prevState, data) {
   }
 });
 
-function setRoomList() {
-  roomList = client.getRooms();
+function setRooms() {
+  rooms = client.getRooms();
   scrollbackRoomEvents();
+  return rooms;
 }
 
 function scrollbackRoomEvents() {
-  roomList.forEach(async function(room) {
+  rooms.forEach(async function(room) {
     await client.scrollback(room);
   });
 }
 
-function printRoomList() {
+function printRooms() {
   console.log("\nAvailable rooms:");
-  for (let i = 0; i < roomList.length; i++) {
-    let events = roomList[i].getLiveTimeline().getEvents();
+
+  let listIndex = 0;
+
+  rooms.forEach(room => {
+    let events = room.getLiveTimeline().getEvents();
     let dateString = "---";
+
     events.forEach(event => {
       if (event) {
         dateString = new Date(Date.now() - event.event.unsigned.age)
@@ -70,16 +75,17 @@ function printRoomList() {
       }
     });
 
-    let myMembership = roomList[i].getMyMembership();
-    let roomName = roomList[i].name;
-    let roomId = roomList[i].roomId;
+    let myMembership = room.getMyMembership();
+    let roomName = room.name;
+    let roomId = room.roomId;
 
     console.log(
-      `[${i}] ${roomName}/${roomId} (${
-        roomList[i].getJoinedMembers().length
+      `[${listIndex}] ${roomName}/${roomId} (${
+        room.getJoinedMembers().length
       } members) ${dateString}`
     );
-  }
+    listIndex++;
+  });
 }
 
 // function sendNotice(body, roomId) {
@@ -95,7 +101,7 @@ function printRoomList() {
 // }
 
 function findMessagesByDate(date) {
-  let events = roomList[0].getLiveTimeline().getEvents();
+  let events = rooms[0].getLiveTimeline().getEvents();
   let requestDate = new Date(date);
   console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
 
@@ -109,7 +115,7 @@ function findMessagesByDate(date) {
 }
 
 function findMessagesByDateRange(startDate, endDate) {
-  let events = roomList[0].getLiveTimeline().getEvents();
+  let events = rooms[0].getLiveTimeline().getEvents();
   let requestStartDate = new Date(startDate);
   let requestEndDate = new Date(endDate);
   console.log(
@@ -136,7 +142,7 @@ function setTimeStampToStartOfDay(event) {
 
 function printChatLog() {
   console.log("\nMessages:");
-  let events = roomList[0].getLiveTimeline().getEvents();
+  let events = rooms[0].getLiveTimeline().getEvents();
 
   events.forEach(event => {
     printFormattedMessage(event);
@@ -176,3 +182,8 @@ setTimeout(() => {
   client.stopClient();
   process.exit();
 }, 5000);
+
+module.exports = {
+  formatTimeStamp: formatTimeStamp,
+  setRooms: setRooms
+}
