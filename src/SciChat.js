@@ -31,6 +31,7 @@ client.on("sync", function(state, prevState, data) {
       printRoomList();
       printChatLog();
       findMessagesByDate("04 Feb 2019");
+      findMessagesByDateRange("04 Feb 2019", "05 Feb 2019");
       break;
     case "RECONNECTING":
       console.log(state + ": Connection lost");
@@ -99,15 +100,38 @@ function findMessagesByDate(date) {
   console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
 
   events.forEach(event => {
-    if (event.getType() === "m.room.message") {
-      let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
-      messageTimeStamp.setHours(0, 0, 0, 0);
+    let messageTimeStamp = setTimeStampToStartOfDay(event);
 
-      if (messageTimeStamp.getTime() === requestDate.getTime()) {
-        printFormattedMessages(event);
-      }
+    if (messageTimeStamp.getTime() === requestDate.getTime()) {
+      printFormattedMessage(event);
     }
   });
+}
+
+function findMessagesByDateRange(startDate, endDate) {
+  let events = roomList[0].getLiveTimeline().getEvents();
+  let requestStartDate = new Date(startDate);
+  let requestEndDate = new Date(endDate);
+  console.log(
+    `\nMessages sent between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
+  );
+
+  events.forEach(event => {
+    let messageTimeStamp = setTimeStampToStartOfDay(event);
+
+    if (
+      messageTimeStamp.getTime() >= requestStartDate.getTime() &&
+      messageTimeStamp.getTime() <= requestEndDate.getTime()
+    ) {
+      printFormattedMessage(event);
+    }
+  });
+}
+
+function setTimeStampToStartOfDay(event) {
+  let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
+  messageTimeStamp.setHours(0, 0, 0, 0);
+  return messageTimeStamp;
 }
 
 function printChatLog() {
@@ -115,37 +139,40 @@ function printChatLog() {
   let events = roomList[0].getLiveTimeline().getEvents();
 
   events.forEach(event => {
-    if (event.getType() === "m.room.message") {
-      printFormattedMessages(event);
-    }
+    printFormattedMessage(event);
   });
 }
 
-function printFormattedMessages(event) {
+function printFormattedMessage(event) {
+  if (event.getType() === "m.room.message") {
+    let [messageDate, messageTime] = formatTimeStamp(event);
+    let sender = event.event.sender.split(/[@:]+/)[1];
+
+    if (event.event.sender === userId) {
+      console.log(
+        `[${messageDate}, ${messageTime}] ${sender} >>> ${
+          event.event.content.body
+        }`
+      );
+    } else {
+      console.log(
+        `[${messageDate}, ${messageTime}] ${sender} <<< ${
+          event.event.content.body
+        }`
+      );
+    }
+  }
+}
+
+function formatTimeStamp(event) {
   let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
   messageTimeStamp.setUTCHours(messageTimeStamp.getUTCHours() + 1);
-  let messageTimeStampSplit = messageTimeStamp.toISOString().split(/[T.]+/);
-
-  let sender = event.event.sender.split(/[@:]+/)[1];
-
-  if (event.event.sender === userId) {
-    console.log(
-      `[${messageTimeStampSplit[0]}, ${
-        messageTimeStampSplit[1]
-      }] ${sender} >>> ${event.event.content.body}`
-    );
-  } else {
-    console.log(
-      `[${messageTimeStampSplit[0]}, ${
-        messageTimeStampSplit[1]
-      }] ${sender} <<< ${event.event.content.body}`
-    );
-  }
+  return messageTimeStamp.toISOString().split(/[T.]+/);
 }
 
 client.startClient(numMessagesToShow);
 
-setTimeout(function() {
+setTimeout(() => {
   client.stopClient();
   process.exit();
 }, 5000);
