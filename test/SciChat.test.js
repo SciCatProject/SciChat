@@ -1,45 +1,45 @@
-'use strict';
+"use strict";
 
-const chai = require('chai');
+const chai = require("chai");
 const expect = chai.expect;
-const request = require('supertest');
+const request = require("supertest");
 
-const sdk = require('../src/MockMatrixClient');
-const authData = require('../src/AuthData');
+const sdk = require("../src/MockMatrixClient");
+const authData = require("../src/AuthData");
 // const app = require('../src/SciChat');
 
-describe('Simple test of function createClient using mock API', function () {
-    describe('#createClient()', function () {
-        it('valid authentication should return the state `PREPARED`', function (done) {
-            let state = sdk.prototype.createClient({
-                baseUrl: authData.baseUrl,
-                accessToken: authData.accessToken,
-                userId: authData.userId
-            });
-            expect(state.value).to.equal('PREPARED');
-            done();
-        });
-
-        it('invalid authentication should return the state `STOPPED`', function (done) {
-            let state = sdk.prototype.createClient({
-                baseUrl: authData.baseUrl,
-                accessToken: "123",
-                userId: authData.userId
-            });
-            expect(state.value).to.equal('STOPPED');
-            done();
-        });
+describe("Simple test of function createClient using mock API", function() {
+  describe("#createClient()", function() {
+    it("valid authentication should return the state `PREPARED`", function(done) {
+      let state = sdk.prototype.createClient({
+        baseUrl: authData.baseUrl,
+        accessToken: authData.accessToken,
+        userId: authData.userId
+      });
+      expect(state.value).to.equal("PREPARED");
+      done();
     });
 
-    describe('#getRooms()', function () {
-        it('should return an array of objects containing userId, roomId and room name', function (done) {
-            let rooms = sdk.prototype.getRooms();
-            expect(rooms.value).to.be.an('array');
-            expect(rooms.value[0]).to.be.an('object');
-            expect(rooms.value[0]).to.include({name: 'First room'});
-            done();
-        });
+    it("invalid authentication should return the state `STOPPED`", function(done) {
+      let state = sdk.prototype.createClient({
+        baseUrl: authData.baseUrl,
+        accessToken: "123",
+        userId: authData.userId
+      });
+      expect(state.value).to.equal("STOPPED");
+      done();
     });
+  });
+
+  describe("#getRooms()", function() {
+    it("should return an array of objects containing userId, roomId and room name", function(done) {
+      let rooms = sdk.prototype.getRooms();
+      expect(rooms.value).to.be.an("array");
+      expect(rooms.value[0]).to.be.an("object");
+      expect(rooms.value[0]).to.include({ name: "First room" });
+      done();
+    });
+  });
 });
 
 // describe('Data fetching test', function () {
@@ -77,4 +77,3 @@ describe('Simple test of function createClient using mock API', function () {
 //         });
 //     });
 // });
-

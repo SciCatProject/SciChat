@@ -2,6 +2,7 @@
   "name": "sci-chat",
   "version": "1.0.0",
   "scripts": {
+    "start": "node ./src/SciChat.js",
     "test": "mocha"
   },
   "dependencies": {
