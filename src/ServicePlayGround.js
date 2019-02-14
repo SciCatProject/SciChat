@@ -6,6 +6,10 @@ const service = new MatrixService();
 
 service.createClient();
 
+let rooms = service.onSync();
+
+console.log(rooms);
+
 service.startClient();
 
 setTimeout(() => {
