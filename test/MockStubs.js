@@ -1,5 +1,5 @@
 const rxjs = require("rxjs");
-const authData = require("./AuthData");
+const authData = require("../src/AuthData");
 
 let of = rxjs.of;
 

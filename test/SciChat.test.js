@@ -7,7 +7,7 @@ const sinon = require("sinon").createSandbox();
 const request = require("supertest");
 
 const sdk = require("matrix-js-sdk");
-const MockStubs = require("../src/MockStubs");
+const MockStubs = require("./MockStubs");
 const authData = require("../src/AuthData");
 const SciChat = require("../src/SciChat");
 
