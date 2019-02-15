@@ -1,7 +1,7 @@
 "use strict";
 
-let sdk = require("matrix-js-sdk");
-let authData = require("./AuthData");
+const sdk = require("matrix-js-sdk");
+const authData = require("./AuthData");
 
 let baseUrl = authData.baseUrl;
 let accessToken = authData.accessToken;
@@ -13,6 +13,44 @@ module.exports = class MatrixService {
     this.accessToken = accessToken;
     this.userId = userId;
     this.client;
+    this.events = [];
+    this.rooms = [];
+    this.timeline = [];
+  }
+
+  getEvents() {
+    return this.events;
+  }
+
+  _setEvents() {
+    this.rooms.forEach(room => {
+      this.events.push(room.getLiveTimeline().getEvents());
+    });
+  }
+
+  getClient() {
+    return this.client;
+  }
+
+  getRooms() {
+    return this.rooms;
+  }
+
+  _setRooms() {
+    this.rooms = this.client.getRooms();
+    this.rooms.forEach(async function(room) {
+      await this.client.scrollback(room);
+    });
+  }
+
+  getTimeline() {
+    return this.timeline;
+  }
+
+  _setTimeline() {
+    this.rooms.forEach(room => {
+      this.timeline.push(room.getLiveTimeline());
+    });
   }
 
   createClient() {
@@ -32,8 +70,8 @@ module.exports = class MatrixService {
     this.client.stopClient();
   }
 
-  onSync(callback, callbackObj) {
-    this.client.on("sync", async function(state, prevState, data) {
+  async sync() {
+    await this.client.on("sync", (state, prevState, data) => {
       switch (state) {
         case "CATCHUP":
           console.log(state + ": Connection found, retrying sync");
@@ -43,8 +81,15 @@ module.exports = class MatrixService {
           break;
         case "PREPARED":
           console.log(state);
-          await callback.apply(callbackObj);
-          // setRooms();
+          let localClient = this.getClient();
+          let localTimeline = this.getTimeline();
+          let localEvents = this.getEvents();
+          this.rooms = localClient.getRooms();
+          this.rooms.forEach(async function(room) {
+            await localClient.scrollback(room);
+            localTimeline.push(room.getLiveTimeline());
+            localEvents.push(room.getLiveTimeline().getEvents());
+          });
           // printRooms();
           // printChatLog();
           // findMessagesByDate("04 Feb 2019");
@@ -61,13 +106,5 @@ module.exports = class MatrixService {
           break;
       }
     });
-  }
-
-  getRooms() {
-    let rooms = this.client.getRooms();
-    rooms.forEach(async function(room) {
-      await this.client.scrollback(room);
-    });
-    return rooms;
   }
 };

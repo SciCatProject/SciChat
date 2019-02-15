@@ -1,18 +1,19 @@
 "use strict";
 
 const MatrixService = require("./MatrixService");
-
 const service = new MatrixService();
 
 service.createClient();
 
-let rooms = service.onSync();
+service.sync();
 
-console.log(rooms);
+setTimeout(function() {
+  let rooms = service.getEvents();
+  console.log(rooms);
+}, 5000);
 
 service.startClient();
 
 setTimeout(() => {
   service.stopClient();
-  process.exit();
-}, 5000);
+}, 3000);
