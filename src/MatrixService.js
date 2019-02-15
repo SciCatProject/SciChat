@@ -22,12 +22,6 @@ module.exports = class MatrixService {
     return this.events;
   }
 
-  _setEvents() {
-    this.rooms.forEach(room => {
-      this.events.push(room.getLiveTimeline().getEvents());
-    });
-  }
-
   getClient() {
     return this.client;
   }
@@ -36,21 +30,8 @@ module.exports = class MatrixService {
     return this.rooms;
   }
 
-  _setRooms() {
-    this.rooms = this.client.getRooms();
-    this.rooms.forEach(async function(room) {
-      await this.client.scrollback(room);
-    });
-  }
-
   getTimeline() {
     return this.timeline;
-  }
-
-  _setTimeline() {
-    this.rooms.forEach(room => {
-      this.timeline.push(room.getLiveTimeline());
-    });
   }
 
   createClient() {
@@ -70,8 +51,8 @@ module.exports = class MatrixService {
     this.client.stopClient();
   }
 
-  async sync() {
-    await this.client.on("sync", (state, prevState, data) => {
+  sync() {
+    this.client.on("sync", (state, prevState, data) => {
       switch (state) {
         case "CATCHUP":
           console.log(state + ": Connection found, retrying sync");
@@ -81,14 +62,11 @@ module.exports = class MatrixService {
           break;
         case "PREPARED":
           console.log(state);
-          let localClient = this.getClient();
-          let localTimeline = this.getTimeline();
-          let localEvents = this.getEvents();
-          this.rooms = localClient.getRooms();
-          this.rooms.forEach(async function(room) {
-            await localClient.scrollback(room);
-            localTimeline.push(room.getLiveTimeline());
-            localEvents.push(room.getLiveTimeline().getEvents());
+          this.rooms = this.client.getRooms();
+          this.rooms.forEach(async (room) => {
+            await this.client.scrollback(room);
+            this.timeline.push(room.getLiveTimeline());
+            this.events.push(room.getLiveTimeline().getEvents());
           });
           // printRooms();
           // printChatLog();
