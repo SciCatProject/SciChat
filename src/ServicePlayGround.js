@@ -8,9 +8,8 @@ service.createClient();
 service.sync();
 
 setTimeout(function() {
-  let rooms = service.getEvents();
-  console.log(rooms);
-}, 5000); 
+  service.printChatLog();
+}, 5000);
 
 service.startClient();
 
