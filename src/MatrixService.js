@@ -3,6 +3,8 @@
 const sdk = require("matrix-js-sdk");
 const authData = require("./AuthData");
 
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 let baseUrl = authData.baseUrl;
 let accessToken = authData.accessToken;
 let userId = authData.userId;
@@ -13,25 +15,27 @@ module.exports = class MatrixService {
     this._accessToken = accessToken;
     this._userId = userId;
     this._client;
-    this._events = [];
-    this._rooms = [];
-    this._timeline = [];
+    this._events;
+    this._rooms;
+    this._timeline;
   }
 
   getEvents() {
-    return this._events;
-  }
-
-  getClient() {
-    return this._client;
+    wait(5000).then(() => {
+      return this._events;
+    });
   }
 
   getRooms() {
-    return this._rooms;
+    wait(5000).then(() => {
+      return this._rooms;
+    });
   }
 
   getTimeline() {
-    return this.timeline;
+    wait(5000).then(() => {
+      return this.timeline;
+    });
   }
 
   createClient() {
@@ -48,11 +52,11 @@ module.exports = class MatrixService {
   }
 
   stopClient() {
-    this._client.stopClient();
+    wait(3000).then(() => this._client.stopClient());
   }
 
   sync() {
-    this._client.on("sync", (state, prevState, data) => {
+    this._client.on("sync", async (state, prevState, data) => {
       switch (state) {
         case "CATCHUP":
           console.log(state + ": Connection found, retrying sync");
@@ -62,11 +66,11 @@ module.exports = class MatrixService {
           break;
         case "PREPARED":
           console.log(state);
-          this._rooms = this._client.getRooms();
+          this._rooms = await this._client.getRooms();
           this._rooms.forEach(async room => {
             await this._client.scrollback(room);
-            this._timeline = room.getLiveTimeline();
-            this._events = this._timeline.getEvents();
+            this._timeline = await room.getLiveTimeline();
+            this._events = await this._timeline.getEvents();
           });
           break;
         case "RECONNECTING":
@@ -83,42 +87,48 @@ module.exports = class MatrixService {
   }
 
   printChatLog() {
-    console.log("\nMessages:");
+    wait(5000).then(() => {
+      console.log("\nMessages:");
 
-    this._events.forEach(event => {
-      this._printFormattedMessage(event);
+      this._events.forEach(event => {
+        this._printFormattedMessage(event);
+      });
     });
   }
 
   findMessagesByDate(date) {
-    let requestDate = new Date(date);
-    console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
+    wait(5000).then(() => {
+      let requestDate = new Date(date);
+      console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
 
-    this._events.forEach(event => {
-      let messageTimeStamp = this._setTimeStampToStartOfDay(event);
+      this._events.forEach(event => {
+        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
 
-      if (messageTimeStamp.getTime() === requestDate.getTime()) {
-        this._printFormattedMessage(event);
-      }
+        if (messageTimeStamp.getTime() === requestDate.getTime()) {
+          this._printFormattedMessage(event);
+        }
+      });
     });
   }
 
   findMessagesByDateRange(startDate, endDate) {
-    let requestStartDate = new Date(startDate);
-    let requestEndDate = new Date(endDate);
-    console.log(
-      `\nMessages sent between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
-    );
+    wait(5000).then(() => {
+      let requestStartDate = new Date(startDate);
+      let requestEndDate = new Date(endDate);
+      console.log(
+        `\nMessages sent between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
+      );
 
-    this._events.forEach(event => {
-      let messageTimeStamp = this._setTimeStampToStartOfDay(event);
+      this._events.forEach(event => {
+        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
 
-      if (
-        messageTimeStamp.getTime() >= requestStartDate.getTime() &&
-        messageTimeStamp.getTime() <= requestEndDate.getTime()
-      ) {
-        this._printFormattedMessage(event);
-      }
+        if (
+          messageTimeStamp.getTime() >= requestStartDate.getTime() &&
+          messageTimeStamp.getTime() <= requestEndDate.getTime()
+        ) {
+          this._printFormattedMessage(event);
+        }
+      });
     });
   }
 

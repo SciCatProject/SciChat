@@ -7,12 +7,8 @@ service.createClient();
 
 service.sync();
 
-setTimeout(function() {
-  service.printChatLog();
-}, 5000);
+service.printChatLog();
 
 service.startClient();
 
-setTimeout(() => {
-  service.stopClient();
-}, 3000);
+service.stopClient();
