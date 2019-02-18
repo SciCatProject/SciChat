@@ -29,12 +29,15 @@ module.exports = class ServiceFactory {
 
   sync() {}
 
+  updateRooms() {}
+
+  createRoom() {}
+
   printChatLog() {}
 
   findMessagesByDate() {}
 
-  findMessagesByDateRange() {
-  }
+  findMessagesByDateRange() {}
 
   _setTimeStampToStartOfDay(event) {
     let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);

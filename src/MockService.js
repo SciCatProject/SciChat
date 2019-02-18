@@ -3,6 +3,7 @@
 const AbstractService = require("./AbstractService");
 const mockStubs = require("../test/MockStubs");
 const events = mockStubs.events;
+const rooms = mockStubs.rooms;
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -10,6 +11,7 @@ module.exports = class MockService extends AbstractService {
   constructor() {
     super();
     this._events = events;
+    this._rooms = rooms;
     this._messages = [];
   }
 
@@ -21,6 +23,7 @@ module.exports = class MockService extends AbstractService {
 
   getRooms() {
     console.log("Called getRooms() from MockService.");
+    return this._rooms;
   }
 
   getTimeline() {
@@ -41,6 +44,22 @@ module.exports = class MockService extends AbstractService {
 
   sync() {
     console.log("Called sync() from MockService.");
+    this.updateRooms();
+  }
+
+  updateRooms() {
+    console.log("Called updateRooms() from MockService.");
+  }
+
+  createRoom(opts) {
+    this._rooms.push(opts);
+    return {
+      room_alias_name: opts.room_alias_name,
+      visibility: opts.visibility,
+      invite: opts.invite,
+      name: opts.name,
+      topic: opts.topic
+    };
   }
 
   printChatLog() {

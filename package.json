@@ -2,7 +2,7 @@
   "name": "sci-chat",
   "version": "1.0.0",
   "scripts": {
-    "start": "node ./src/SciChat.js",
+    "start": "node ./src/ServicePlayGround.js",
     "test": "mocha"
   },
   "dependencies": {

@@ -60,12 +60,7 @@ module.exports = class MatrixService extends AbstractService {
           break;
         case "PREPARED":
           console.log(state);
-          this._rooms = await this._client.getRooms();
-          this._rooms.forEach(async room => {
-            await this._client.scrollback(room);
-            this._timeline = await room.getLiveTimeline();
-            this._events = await this._timeline.getEvents();
-          });
+          this.updateRooms();
           break;
         case "RECONNECTING":
           console.log(state + ": Connection lost");
@@ -78,6 +73,22 @@ module.exports = class MatrixService extends AbstractService {
           break;
       }
     });
+  }
+
+  async updateRooms() {
+    this._rooms = await this._client.getRooms();
+    this._rooms.forEach(async room => {
+      await this._client.scrollback(room);
+      this._timeline = await room.getLiveTimeline();
+      this._events = await this._timeline.getEvents();
+    });
+    console.log("Updated rooms.");
+  }
+
+  async createRoom(opts) {
+    await this._client.createRoom(opts);
+    console.log("Created new room");
+    this.updateRooms();
   }
 
   printChatLog() {

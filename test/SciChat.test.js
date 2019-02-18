@@ -7,6 +7,24 @@ const MockService = require("../src/MockService");
 const service = new MockService();
 
 describe("Simple test of function createClient using mock API", function() {
+  describe("#createRoom()", function() {
+    it("should create a new room named ERIC", function(done) {
+      let opts = {
+        room_alias_name: "ERIC",
+        visibility: "public",
+        invite: ["@henrik.johansson712:matrix.org"],
+        name: "ERIC",
+        topic: "Log for events at ESS ERIC"
+      }
+      expect(service.getRooms()).to.have.length(1);
+      let newRoom = service.createRoom(opts);
+      expect(newRoom).to.be.an("object");
+      expect(newRoom.name).to.equal("ERIC");
+      expect(service.getRooms()).to.have.length(2);
+      done();
+    });
+  });
+
   describe("#printChatLog()", function() {
     it("should return an array containing the entire chatlog for a room", function(done) {
       let messages = service.printChatLog();
