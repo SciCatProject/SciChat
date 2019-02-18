@@ -5,9 +5,9 @@ const authData = require("./AuthData");
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-let baseUrl = authData.baseUrl;
-let accessToken = authData.accessToken;
-let userId = authData.userId;
+const baseUrl = authData.baseUrl;
+const accessToken = authData.accessToken;
+const userId = authData.userId;
 
 module.exports = class MatrixService {
   constructor() {
