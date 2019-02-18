@@ -1,69 +1,67 @@
 "use strict";
 
+const AbstractService = require("./AbstractService");
 const mockStubs = require("../test/MockStubs");
 const events = mockStubs.events;
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-module.exports = class MockService {
+module.exports = class MockService extends AbstractService {
   constructor() {
+    super();
     this._events = events;
   }
 
-  printChatLog() {
+  getEvents() {
     wait(5000).then(() => {
-      console.log("\nMessages:");
-
-      this._events.forEach(event => {
-        this._printFormattedMessage(event);
-      });
+      return this._events;
     });
+  }
+
+  getRooms() {
+    console.log("Called getRooms() from MockService.");
+  }
+
+  getTimeline() {
+    console.log("Called getTimeline() from MockService.");
+  }
+
+  createClient() {
+    console.log("Called createClient() from MockService.");
+  }
+
+  startClient() {
+    console.log("Called startClient() from MockService.");
+  }
+
+  stopClient() {
+    wait(3000).then(() => console.log("Called stopClient() from MockService."));
+  }
+
+  sync() {
+    console.log("Called sync() from MockService.");
+  }
+
+  printChatLog() {
+    super.printChatLog();
   }
 
   findMessagesByDate(date) {
-    wait(5000).then(() => {
-      let requestDate = new Date(date);
-      console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
-
-      this._events.forEach(event => {
-        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-
-        if (messageTimeStamp.getTime() === requestDate.getTime()) {
-          this._printFormattedMessage(event);
-        }
-      });
-    });
+    super.findMessagesByDate(date);
   }
 
   findMessagesByDateRange(startDate, endDate) {
-    wait(5000).then(() => {
-      let requestStartDate = new Date(startDate);
-      let requestEndDate = new Date(endDate);
-      console.log(
-        `\nMessages sent between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
-      );
-
-      this._events.forEach(event => {
-        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-
-        if (
-          messageTimeStamp.getTime() >= requestStartDate.getTime() &&
-          messageTimeStamp.getTime() <= requestEndDate.getTime()
-        ) {
-          this._printFormattedMessage(event);
-        }
-      });
-    });
+    super.findMessagesByDateRange(startDate, endDate);
   }
 
   _setTimeStampToStartOfDay(event) {
-    let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
-    messageTimeStamp.setHours(0, 0, 0, 0);
-    return messageTimeStamp;
+    return super._setTimeStampToStartOfDay(event);
   }
 
   _printFormattedMessage(event) {
+    let messages = [];
     if (event.event.type === "m.room.message") {
+      messages.push(event);
       let [messageDate, messageTime] = this._formatTimeStamp(event);
 
       if (event.event.sender === this.userId) {
@@ -80,11 +78,10 @@ module.exports = class MockService {
         );
       }
     }
+    return messages;
   }
 
   _formatTimeStamp(event) {
-    let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
-    messageTimeStamp.setUTCHours(messageTimeStamp.getUTCHours() + 1);
-    return messageTimeStamp.toISOString().split(/[T.]+/);
+    return super._formatTimeStamp(event);
   }
 };

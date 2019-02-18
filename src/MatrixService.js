@@ -1,19 +1,13 @@
 "use strict";
 
+const AbstractService = require("./AbstractService");
 const sdk = require("matrix-js-sdk");
-const authData = require("./AuthData");
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const baseUrl = authData.baseUrl;
-const accessToken = authData.accessToken;
-const userId = authData.userId;
-
-module.exports = class MatrixService {
+module.exports = class MatrixService extends AbstractService {
   constructor() {
-    this._baseUrl = baseUrl;
-    this._accessToken = accessToken;
-    this._userId = userId;
+    super();
     this._client;
     this._events;
     this._rooms;
@@ -87,55 +81,19 @@ module.exports = class MatrixService {
   }
 
   printChatLog() {
-    wait(5000).then(() => {
-      console.log("\nMessages:");
-
-      this._events.forEach(event => {
-        this._printFormattedMessage(event);
-      });
-    });
+    super.printChatLog();
   }
 
   findMessagesByDate(date) {
-    wait(5000).then(() => {
-      let requestDate = new Date(date);
-      console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
-
-      this._events.forEach(event => {
-        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-
-        if (messageTimeStamp.getTime() === requestDate.getTime()) {
-          this._printFormattedMessage(event);
-        }
-      });
-    });
+    super.findMessagesByDate(date);
   }
 
   findMessagesByDateRange(startDate, endDate) {
-    wait(5000).then(() => {
-      let requestStartDate = new Date(startDate);
-      let requestEndDate = new Date(endDate);
-      console.log(
-        `\nMessages sent between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
-      );
-
-      this._events.forEach(event => {
-        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-
-        if (
-          messageTimeStamp.getTime() >= requestStartDate.getTime() &&
-          messageTimeStamp.getTime() <= requestEndDate.getTime()
-        ) {
-          this._printFormattedMessage(event);
-        }
-      });
-    });
+    super.findMessagesByDateRange(startDate, endDate);
   }
 
   _setTimeStampToStartOfDay(event) {
-    let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
-    messageTimeStamp.setHours(0, 0, 0, 0);
-    return messageTimeStamp;
+    return super._setTimeStampToStartOfDay(event);
   }
 
   _printFormattedMessage(event) {
@@ -159,8 +117,6 @@ module.exports = class MatrixService {
   }
 
   _formatTimeStamp(event) {
-    let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
-    messageTimeStamp.setUTCHours(messageTimeStamp.getUTCHours() + 1);
-    return messageTimeStamp.toISOString().split(/[T.]+/);
+    return super._formatTimeStamp(event);
   }
 };
