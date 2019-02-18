@@ -5,7 +5,6 @@ const expect = chai.expect;
 const assert = chai.assert;
 const request = require("supertest");
 
-const authData = require("../src/AuthData");
 const MockService = require("../src/MockService");
 const service = new MockService();
 
@@ -13,41 +12,44 @@ describe("Simple test of function createClient using mock API", function() {
   describe("#printChatLog()", function() {
     it("should return an array containing the entire chatlog for a room", function(done) {
       let messages = service.printChatLog();
-      console.log(messages);
-      expect(messages).to.be.an("array");
-      expect(messages[0].event.type).to.equal("m.room.message");
+      expect(messages).to.be.an("array").that.is.not.empty;
+      messages.forEach(message => {
+        expect(message.event.type).to.equal("m.room.message");
+      });
       done();
     });
   });
 
-  // describe("#formatTimeStamp()", function() {
-  //   it("should return an array of format [`yyyy-MM-dd`, `hh:mm:ss`, `ms`]", function(done) {
-  //     let event = {
-  //       event: {
-  //         unsigned: {
-  //           age: 1234567
-  //         }
-  //       }
-  //     };
-  //     service._formatTimeStamp(event);
-  //     assert(service._formatTimeStamp.calledWith(event));
-  //     expect(service._formatTimeStamp.returnValues[0])
-  //       .to.be.an("array")
-  //       .of.length(3);
-  //     expect(SciChat.formatTimeStamp.returnValues[0][0]).to.match(
-  //       /\d{4}-\d{2}-\d{2}/
-  //     );
-  //     done();
-  //   });
-  // });
+  describe("#findMessagesByDate()", function() {
+    it("should return all messages in a room sent on 4 Feb 2019", function(done) {
+      let requestDate = new Date("04 Feb 2019");
+      let messages = service.findMessagesByDate(requestDate);
+      expect(messages).to.be.an("array").that.is.not.empty;
+      messages.forEach(message => {
+        expect(message.event.type).to.equal("m.room.message");
+        let messageTimeStamp = service._setTimeStampToStartOfDay(message);
+        expect(messageTimeStamp.getTime()).to.equal(requestDate.getTime());
+      });
+      done();
+    });
+  });
 
-  // describe.skip("#getRooms()", function() {
-  //   it("should return an array of objects containing userId, roomId and room name", function(done) {
-  //     let rooms = sdk.getRooms();
-  //     expect(rooms.value).to.be.an("array");
-  //     expect(rooms.value[0]).to.be.an("object");
-  //     expect(rooms.value[0]).to.include({ name: "First room" });
-  //     done();
-  //   });
-  // });
+  describe("#findMessagesByDateRange()", function() {
+    it("should return all messages in a room sent between 4 Feb 2019 and 5 Feb 2019", function(done) {
+      let requestStartDate = new Date("04 Feb 2019");
+      let requestEndDate = new Date("05 Feb 2019");
+      let messages = service.findMessagesByDateRange(
+        requestStartDate,
+        requestEndDate
+      );
+      expect(messages).to.be.an("array").that.is.not.empty;
+      messages.forEach(message => {
+        let messageTimeStamp = service._setTimeStampToStartOfDay(message);
+        expect(messageTimeStamp.getTime())
+          .to.be.at.least(requestStartDate.getTime())
+          .and.not.greaterThan(requestEndDate.getTime());
+      });
+      done();
+    });
+  });
 });

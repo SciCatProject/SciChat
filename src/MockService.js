@@ -10,6 +10,7 @@ module.exports = class MockService extends AbstractService {
   constructor() {
     super();
     this._events = events;
+    this._messages = [];
   }
 
   getEvents() {
@@ -43,15 +44,49 @@ module.exports = class MockService extends AbstractService {
   }
 
   printChatLog() {
-    super.printChatLog();
+    this._messages = [];
+    console.log("\nMessages:");
+
+    this._events.forEach(event => {
+      this._printFormattedMessage(event);
+    });
+    return this._messages;
   }
 
   findMessagesByDate(date) {
-    super.findMessagesByDate(date);
+    this._messages = [];
+    let requestDate = new Date(date);
+    console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
+
+    this._events.forEach(event => {
+      let messageTimeStamp = this._setTimeStampToStartOfDay(event);
+
+      if (messageTimeStamp.getTime() === requestDate.getTime()) {
+        this._printFormattedMessage(event);
+      }
+    });
+    return this._messages;
   }
 
   findMessagesByDateRange(startDate, endDate) {
-    super.findMessagesByDateRange(startDate, endDate);
+    this._messages = [];
+    let requestStartDate = new Date(startDate);
+    let requestEndDate = new Date(endDate);
+    console.log(
+      `\nMessages sent between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
+    );
+
+    this._events.forEach(event => {
+      let messageTimeStamp = this._setTimeStampToStartOfDay(event);
+
+      if (
+        messageTimeStamp.getTime() >= requestStartDate.getTime() &&
+        messageTimeStamp.getTime() <= requestEndDate.getTime()
+      ) {
+        this._printFormattedMessage(event);
+      }
+    });
+    return this._messages;
   }
 
   _setTimeStampToStartOfDay(event) {
@@ -59,9 +94,8 @@ module.exports = class MockService extends AbstractService {
   }
 
   _printFormattedMessage(event) {
-    let messages = [];
     if (event.event.type === "m.room.message") {
-      messages.push(event);
+      this._messages.push(event);
       let [messageDate, messageTime] = this._formatTimeStamp(event);
 
       if (event.event.sender === this.userId) {
@@ -78,7 +112,6 @@ module.exports = class MockService extends AbstractService {
         );
       }
     }
-    return messages;
   }
 
   _formatTimeStamp(event) {

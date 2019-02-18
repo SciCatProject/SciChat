@@ -81,15 +81,49 @@ module.exports = class MatrixService extends AbstractService {
   }
 
   printChatLog() {
-    super.printChatLog();
+    wait(5000).then(() => {
+      console.log("\nMessages:");
+
+      this._events.forEach(event => {
+        this._printFormattedMessage(event);
+      });
+    });
   }
 
   findMessagesByDate(date) {
-    super.findMessagesByDate(date);
+    wait(5000).then(() => {
+      let requestDate = new Date(date);
+      console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
+
+      this._events.forEach(event => {
+        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
+
+        if (messageTimeStamp.getTime() === requestDate.getTime()) {
+          this._printFormattedMessage(event);
+        }
+      });
+    });
   }
 
   findMessagesByDateRange(startDate, endDate) {
-    super.findMessagesByDateRange(startDate, endDate);
+    wait(5000).then(() => {
+      let requestStartDate = new Date(startDate);
+      let requestEndDate = new Date(endDate);
+      console.log(
+        `\nMessages sent between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
+      );
+
+      this._events.forEach(event => {
+        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
+
+        if (
+          messageTimeStamp.getTime() >= requestStartDate.getTime() &&
+          messageTimeStamp.getTime() <= requestEndDate.getTime()
+        ) {
+          this._printFormattedMessage(event);
+        }
+      });
+    });
   }
 
   _setTimeStampToStartOfDay(event) {
