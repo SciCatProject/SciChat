@@ -2,8 +2,6 @@
 
 const chai = require("chai");
 const expect = chai.expect;
-const assert = chai.assert;
-const request = require("supertest");
 
 const MockService = require("../src/MockService");
 const service = new MockService();
@@ -21,7 +19,7 @@ describe("Simple test of function createClient using mock API", function() {
   });
 
   describe("#findMessagesByDate()", function() {
-    it("should return all messages in a room sent on 4 Feb 2019", function(done) {
+    it("should return an array containing all messages in a room sent on 4 Feb 2019", function(done) {
       let requestDate = new Date("04 Feb 2019");
       let messages = service.findMessagesByDate(requestDate);
       expect(messages).to.be.an("array").that.is.not.empty;
@@ -35,7 +33,7 @@ describe("Simple test of function createClient using mock API", function() {
   });
 
   describe("#findMessagesByDateRange()", function() {
-    it("should return all messages in a room sent between 4 Feb 2019 and 5 Feb 2019", function(done) {
+    it("should return an array containing all messages in a room sent between 4 Feb 2019 and 5 Feb 2019", function(done) {
       let requestStartDate = new Date("04 Feb 2019");
       let requestEndDate = new Date("05 Feb 2019");
       let messages = service.findMessagesByDateRange(
