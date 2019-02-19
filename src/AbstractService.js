@@ -1,17 +1,7 @@
 "use strict";
 
-const authData = require("./AuthData");
-
-const baseUrl = authData.baseUrl;
-const accessToken = authData.accessToken;
-const userId = authData.userId;
-
 module.exports = class AbstractService {
-  constructor() {
-    this._baseUrl = baseUrl;
-    this._accessToken = accessToken;
-    this._userId = userId;
-  }
+  constructor() {}
 
   getEvents() {}
 

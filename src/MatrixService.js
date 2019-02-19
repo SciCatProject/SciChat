@@ -1,13 +1,21 @@
 "use strict";
 
-const AbstractService = require("./AbstractService");
 const sdk = require("matrix-js-sdk");
+const AbstractService = require("./AbstractService");
+const authData = require("./AuthData");
+
+const baseUrl = authData.baseUrl;
+const accessToken = authData.accessToken;
+const userId = authData.userId;
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 module.exports = class MatrixService extends AbstractService {
   constructor() {
     super();
+    this._baseUrl = baseUrl;
+    this._accessToken = accessToken;
+    this._userId = userId;
     this._client;
     this._events;
     this._rooms;
