@@ -15,7 +15,7 @@ describe("Unit tests for created services", function() {
         invite: ["@henrik.johansson712:matrix.org"],
         name: "ERIC",
         topic: "Log for events at ESS ERIC"
-      }
+      };
       expect(service.getRooms()).to.have.length(1);
       let newRoom = service.createRoom(opts);
       expect(newRoom).to.be.an("object");
@@ -44,6 +44,22 @@ describe("Unit tests for created services", function() {
       messagesByRoom.messages.forEach(message => {
         expect(message.event.type).to.equal("m.room.message");
         expect(message.event.room_id).to.equal(messagesByRoom.roomId);
+      });
+      done();
+    });
+  });
+
+  describe("#findMessagesByRoomAndDate()", function() {
+    it("should return an object containing roomId and an array of messages for the room `First room` on 4 Feb 2019", function(done) {
+      let roomName = "First room";
+      let requestDate = new Date("04 Feb 2019");
+      let messagesByRoomAndDate = service.findMessagesByRoomAndDate(roomName, requestDate);
+      expect(messagesByRoomAndDate).to.be.an("object").that.is.not.empty;
+      messagesByRoomAndDate.messages.forEach(message => {
+        expect(message.event.type).to.equal("m.room.message");
+        let messageTimeStamp = service._setTimeStampToStartOfDay(message);
+        expect(messageTimeStamp.getTime()).to.equal(requestDate.getTime());
+        expect(message.event.room_id).to.equal(messagesByRoomAndDate.roomId);
       });
       done();
     });

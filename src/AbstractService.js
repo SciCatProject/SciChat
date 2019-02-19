@@ -6,9 +6,7 @@ const baseUrl = authData.baseUrl;
 const accessToken = authData.accessToken;
 const userId = authData.userId;
 
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-module.exports = class ServiceFactory {
+module.exports = class AbstractService {
   constructor() {
     this._baseUrl = baseUrl;
     this._accessToken = accessToken;
@@ -33,6 +31,8 @@ module.exports = class ServiceFactory {
 
   createRoom() {}
 
+  findRoom() {}
+
   findMessagesByRoom() {}
 
   findMessagesByRoomAndDate() {}
@@ -56,6 +56,6 @@ module.exports = class ServiceFactory {
   _formatTimeStamp(event) {
     let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
     messageTimeStamp.setUTCHours(messageTimeStamp.getUTCHours() + 1);
-    return messageTimeStamp.toISOString().split(/[T.]+/);
+    return messageTimeStamp.toISOString().replace("T"," ").replace(/\.\w+/,"");
   }
 };

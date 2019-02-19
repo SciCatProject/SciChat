@@ -62,25 +62,51 @@ module.exports = class MockService extends AbstractService {
     };
   }
 
+  findRoom(name) {
+    let foundRoom;
+    this._rooms.forEach(room => {
+      if (room.name.toLowerCase() === name.toLowerCase()) {
+        foundRoom = room;
+      }
+    });
+    return foundRoom;
+  }
+
   findMessagesByRoom(name) {
     this._messages = [];
     let messagesByRoom = {};
     console.log(`\nMessages sent in room ${name}:`);
-    this._rooms.forEach(room => {
-      if (room.name.toLowerCase() === name.toLowerCase()) {
-        messagesByRoom.roomId = room.roomId;
-        this._events.forEach(event => {
-          if (event.event.room_id === room.roomId) {
-            this._printFormattedMessage(event);
-          }
-        });
+    let room = this.findRoom(name);
+    messagesByRoom.roomId = room.roomId;
+    this._events.forEach(event => {
+      if (event.event.room_id === room.roomId) {
+        this._printFormattedMessage(event);
       }
     });
     messagesByRoom.messages = this._messages;
     return messagesByRoom;
   }
 
-  findMessagesByRoomAndDate() {}
+  findMessagesByRoomAndDate(name, date) {
+    this._messages = [];
+    let messagesByRoomAndDate = {};
+    let requestDate = new Date(date);
+    console.log(
+      `\nMessages sent in room ${name} on ${requestDate.toDateString()}:`
+    );
+    let room = this.findRoom(name);
+    messagesByRoomAndDate.roomId = room.roomId;
+    this._events.forEach(event => {
+      if (event.event.room_id === room.roomId) {
+        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
+        if (messageTimeStamp.getTime() === requestDate.getTime()) {
+          this._printFormattedMessage(event);
+        }
+      }
+    });
+    messagesByRoomAndDate.messages = this._messages;
+    return messagesByRoomAndDate;
+  }
 
   findMessagesByRoomAndDateRange() {}
 
@@ -137,17 +163,17 @@ module.exports = class MockService extends AbstractService {
   _printFormattedMessage(event) {
     if (event.event.type === "m.room.message") {
       this._messages.push(event);
-      let [messageDate, messageTime] = this._formatTimeStamp(event);
+      let messageTimeStamp = this._formatTimeStamp(event);
 
       if (event.event.sender === this.userId) {
         console.log(
-          `[${messageDate}, ${messageTime}] ${event.sender.name} >>> ${
+          `[${messageTimeStamp}] ${event.sender.name} >>> ${
             event.event.content.body
           }`
         );
       } else {
         console.log(
-          `[${messageDate}, ${messageTime}] ${event.sender.name} <<< ${
+          `[${messageTimeStamp}] ${event.sender.name} <<< ${
             event.event.content.body
           }`
         );

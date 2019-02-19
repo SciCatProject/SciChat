@@ -91,22 +91,43 @@ module.exports = class MatrixService extends AbstractService {
     this.updateRooms();
   }
 
-  findMessagesByRoom(name) {
+  findRoom(name) {
     let foundRoom;
-    let roomEvents;
+    this._rooms.forEach(room => {
+      if (room.name.toLowerCase() === name.toLowerCase()) {
+        foundRoom = room;
+      }
+    });
+    return foundRoom;
+  }
+
+  findMessagesByRoom(name) {
     wait(5000).then(async () => {
       console.log(`\nMessages sent in room ${name}:`);
-      this._rooms.forEach(async room => {
-        if (room.name.toLowerCase() === name.toLowerCase()) {
-          foundRoom = room;
-        }
-      });
-      roomEvents = await foundRoom.getLiveTimeline().getEvents();
+      let room = this.findRoom(name);
+      let roomEvents = await room.getLiveTimeline().getEvents();
       roomEvents.forEach(event => {
         this._printFormattedMessage(event);
-      })
+      });
     });
   }
+
+  findMessagesByRoomAndDate(name, date) {
+    let requestDate = new Date(date);
+    wait(5000).then(async () => {
+      console.log(`\nMessages sent in room ${name} on ${requestDate.toDateString()}:`);
+      let room = this.findRoom(name);
+      let roomEvents = await room.getLiveTimeline().getEvents();
+      roomEvents.forEach(event => {
+        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
+        if (messageTimeStamp.getTime() === requestDate.getTime()) {
+          this._printFormattedMessage(event);
+        }
+      });
+    });
+  }
+
+  findMessagesByRoomAndDateRange() {}
 
   printChatLog() {
     wait(5000).then(() => {
@@ -160,17 +181,17 @@ module.exports = class MatrixService extends AbstractService {
 
   _printFormattedMessage(event) {
     if (event.getType() === "m.room.message") {
-      let [messageDate, messageTime] = this._formatTimeStamp(event);
+      let messageTimeStamp = this._formatTimeStamp(event);
 
       if (event.event.sender === this.userId) {
         console.log(
-          `[${messageDate}, ${messageTime}] ${event.sender.name} >>> ${
+          `[${messageTimeStamp}] ${event.sender.name} >>> ${
             event.event.content.body
           }`
         );
       } else {
         console.log(
-          `[${messageDate}, ${messageTime}] ${event.sender.name} <<< ${
+          `[${messageTimeStamp}] ${event.sender.name} <<< ${
             event.event.content.body
           }`
         );
