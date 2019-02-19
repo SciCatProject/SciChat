@@ -20,13 +20,7 @@ service.sync();
 
 // service.createRoom(opts);
 
-// service.printChatLog();
-setTimeout(() => {
-  let rooms = service._rooms;
-  rooms.forEach(room => {
-    console.log(room.name);
-  });
-}, 5000);
+service.findMessagesByRoom("First room");
 
 service.startClient();
 

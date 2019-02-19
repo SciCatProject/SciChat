@@ -6,7 +6,7 @@ const expect = chai.expect;
 const MockService = require("../src/MockService");
 const service = new MockService();
 
-describe("Simple test of function createClient using mock API", function() {
+describe("Unit tests for created services", function() {
   describe("#createRoom()", function() {
     it("should create a new room named ERIC", function(done) {
       let opts = {
@@ -31,6 +31,19 @@ describe("Simple test of function createClient using mock API", function() {
       expect(messages).to.be.an("array").that.is.not.empty;
       messages.forEach(message => {
         expect(message.event.type).to.equal("m.room.message");
+      });
+      done();
+    });
+  });
+
+  describe("#findMessagesByRoom()", function() {
+    it("should return an object containing roomId and an array of messages for the room `First room`", function(done) {
+      let roomName = "First room";
+      let messagesByRoom = service.findMessagesByRoom(roomName);
+      expect(messagesByRoom).to.be.an("object").that.is.not.empty;
+      messagesByRoom.messages.forEach(message => {
+        expect(message.event.type).to.equal("m.room.message");
+        expect(message.event.room_id).to.equal(messagesByRoom.roomId);
       });
       done();
     });

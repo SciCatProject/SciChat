@@ -91,6 +91,23 @@ module.exports = class MatrixService extends AbstractService {
     this.updateRooms();
   }
 
+  findMessagesByRoom(name) {
+    let foundRoom;
+    let roomEvents;
+    wait(5000).then(async () => {
+      console.log(`\nMessages sent in room ${name}:`);
+      this._rooms.forEach(async room => {
+        if (room.name.toLowerCase() === name.toLowerCase()) {
+          foundRoom = room;
+        }
+      });
+      roomEvents = await foundRoom.getLiveTimeline().getEvents();
+      roomEvents.forEach(event => {
+        this._printFormattedMessage(event);
+      })
+    });
+  }
+
   printChatLog() {
     wait(5000).then(() => {
       console.log("\nMessages:");

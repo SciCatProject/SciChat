@@ -62,6 +62,28 @@ module.exports = class MockService extends AbstractService {
     };
   }
 
+  findMessagesByRoom(name) {
+    this._messages = [];
+    let messagesByRoom = {};
+    console.log(`\nMessages sent in room ${name}:`);
+    this._rooms.forEach(room => {
+      if (room.name.toLowerCase() === name.toLowerCase()) {
+        messagesByRoom.roomId = room.roomId;
+        this._events.forEach(event => {
+          if (event.event.room_id === room.roomId) {
+            this._printFormattedMessage(event);
+          }
+        });
+      }
+    });
+    messagesByRoom.messages = this._messages;
+    return messagesByRoom;
+  }
+
+  findMessagesByRoomAndDate() {}
+
+  findMessagesByRoomAndDateRange() {}
+
   printChatLog() {
     this._messages = [];
     console.log("\nMessages:");

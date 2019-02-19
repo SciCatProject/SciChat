@@ -33,6 +33,12 @@ module.exports = class ServiceFactory {
 
   createRoom() {}
 
+  findMessagesByRoom() {}
+
+  findMessagesByRoomAndDate() {}
+
+  findMessagesByRoomAndDateRange() {}
+
   printChatLog() {}
 
   findMessagesByDate() {}
