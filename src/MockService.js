@@ -97,18 +97,38 @@ module.exports = class MockService extends AbstractService {
     let room = this.findRoom(name);
     messagesByRoomAndDate.roomId = room.roomId;
     this._events.forEach(event => {
-      if (event.event.room_id === room.roomId) {
-        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-        if (messageTimeStamp.getTime() === requestDate.getTime()) {
-          this._printFormattedMessage(event);
-        }
+      if (
+        event.event.room_id === room.roomId &&
+        this._eventDateEqualsRequestDate(event, requestDate)
+      ) {
+        this._printFormattedMessage(event);
       }
     });
     messagesByRoomAndDate.messages = this._messages;
     return messagesByRoomAndDate;
   }
 
-  findMessagesByRoomAndDateRange() {}
+  findMessagesByRoomAndDateRange(name, startDate, endDate) {
+    this._messages = [];
+    let messagesByRoomAndDateRange = {};
+    let requestStartDate = new Date(startDate);
+    let requestEndDate = new Date(endDate);
+    console.log(
+      `Messages sent in room ${name} between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
+    );
+    let room = this.findRoom(name);
+    messagesByRoomAndDateRange.roomId = room.roomId;
+    this._events.forEach(event => {
+      if (
+        event.event.room_id === room.roomId &&
+        this._eventDateIsBetweenRequestDates(event, requestStartDate, requestEndDate)
+      ) {
+        this._printFormattedMessage(event);
+      }
+    });
+    messagesByRoomAndDateRange.messages = this._messages;
+    return messagesByRoomAndDateRange;
+  }
 
   printChatLog() {
     this._messages = [];
@@ -126,9 +146,7 @@ module.exports = class MockService extends AbstractService {
     console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
 
     this._events.forEach(event => {
-      let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-
-      if (messageTimeStamp.getTime() === requestDate.getTime()) {
+      if (this._eventDateEqualsRequestDate(event, requestDate)) {
         this._printFormattedMessage(event);
       }
     });
@@ -144,16 +162,38 @@ module.exports = class MockService extends AbstractService {
     );
 
     this._events.forEach(event => {
-      let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-
       if (
-        messageTimeStamp.getTime() >= requestStartDate.getTime() &&
-        messageTimeStamp.getTime() <= requestEndDate.getTime()
+        this._eventDateIsBetweenRequestDates(
+          event,
+          requestStartDate,
+          requestEndDate
+        )
       ) {
         this._printFormattedMessage(event);
       }
     });
     return this._messages;
+  }
+
+  _eventDateEqualsRequestDate(event, requestDate) {
+    let eventTimeStamp = this._setTimeStampToStartOfDay(event);
+    if (eventTimeStamp.getTime() === requestDate.getTime()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  _eventDateIsBetweenRequestDates(event, requestStartDate, requestEndDate) {
+    let eventTimeStamp = this._setTimeStampToStartOfDay(event);
+    if (
+      eventTimeStamp.getTime() >= requestStartDate.getTime() &&
+      eventTimeStamp.getTime() <= requestEndDate.getTime()
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   _setTimeStampToStartOfDay(event) {

@@ -50,16 +50,41 @@ describe("Unit tests for created services", function() {
   });
 
   describe("#findMessagesByRoomAndDate()", function() {
-    it("should return an object containing roomId and an array of messages for the room `First room` on 4 Feb 2019", function(done) {
+    it("should return an object containing roomId for the room `First room` and an array of messages sent on 4 Feb 2019", function(done) {
       let roomName = "First room";
       let requestDate = new Date("04 Feb 2019");
-      let messagesByRoomAndDate = service.findMessagesByRoomAndDate(roomName, requestDate);
+      let messagesByRoomAndDate = service.findMessagesByRoomAndDate(
+        roomName,
+        requestDate
+      );
       expect(messagesByRoomAndDate).to.be.an("object").that.is.not.empty;
       messagesByRoomAndDate.messages.forEach(message => {
         expect(message.event.type).to.equal("m.room.message");
         let messageTimeStamp = service._setTimeStampToStartOfDay(message);
         expect(messageTimeStamp.getTime()).to.equal(requestDate.getTime());
         expect(message.event.room_id).to.equal(messagesByRoomAndDate.roomId);
+      });
+      done();
+    });
+  });
+
+  describe("#findMessagesByRoomAndDateRange()", function() {
+    it("should return an object containing roomID for the room `First room` and an array of messages sent between 4 Feb 2019 and 5 Feb 2019", function(done) {
+      let roomName = "First room";
+      let requestStartDate = new Date("04 Feb 2019");
+      let requestEndDate = new Date("05 Feb 2019");
+      let messagesByRoomAndDateRange = service.findMessagesByRoomAndDateRange(
+        roomName,
+        requestStartDate,
+        requestEndDate
+      );
+      expect(messagesByRoomAndDateRange).to.be.an("object").that.is.not.empty;
+      messagesByRoomAndDateRange.messages.forEach(message => {
+        expect(message.event.type).to.equal("m.room.message");
+        let messageTimeStamp = service._setTimeStampToStartOfDay(message);
+        expect(messageTimeStamp.getTime())
+          .to.be.at.least(requestStartDate.getTime())
+          .and.not.greaterThan(requestEndDate.getTime());
       });
       done();
     });

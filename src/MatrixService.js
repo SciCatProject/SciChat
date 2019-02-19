@@ -115,19 +115,41 @@ module.exports = class MatrixService extends AbstractService {
   findMessagesByRoomAndDate(name, date) {
     let requestDate = new Date(date);
     wait(5000).then(async () => {
-      console.log(`\nMessages sent in room ${name} on ${requestDate.toDateString()}:`);
+      console.log(
+        `\nMessages sent in room ${name} on ${requestDate.toDateString()}:`
+      );
       let room = this.findRoom(name);
       let roomEvents = await room.getLiveTimeline().getEvents();
       roomEvents.forEach(event => {
-        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-        if (messageTimeStamp.getTime() === requestDate.getTime()) {
+        if (this._eventDateEqualsRequestDate(event, requestDate)) {
           this._printFormattedMessage(event);
         }
       });
     });
   }
 
-  findMessagesByRoomAndDateRange() {}
+  findMessagesByRoomAndDateRange(name, startDate, endDate) {
+    let requestStartDate = new Date(startDate);
+    let requestEndDate = new Date(endDate);
+    wait(5000).then(async () => {
+      console.log(
+        `\nMessages sent in room ${name} between ${requestStartDate.toDateString()} and ${requestEndDate.toDateString()}:`
+      );
+      let room = this.findRoom(name);
+      let roomEvents = await room.getLiveTimeline().getEvents();
+      roomEvents.forEach(event => {
+        if (
+          this._eventDateIsBetweenRequestDates(
+            event,
+            requestStartDate,
+            requestEndDate
+          )
+        ) {
+          this._printFormattedMessage(event);
+        }
+      });
+    });
+  }
 
   printChatLog() {
     wait(5000).then(() => {
@@ -145,9 +167,7 @@ module.exports = class MatrixService extends AbstractService {
       console.log(`\nMessages sent on ${requestDate.toDateString()}:`);
 
       this._events.forEach(event => {
-        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-
-        if (messageTimeStamp.getTime() === requestDate.getTime()) {
+        if (this._eventDateEqualsRequestDate(event, requestDate)) {
           this._printFormattedMessage(event);
         }
       });
@@ -163,16 +183,38 @@ module.exports = class MatrixService extends AbstractService {
       );
 
       this._events.forEach(event => {
-        let messageTimeStamp = this._setTimeStampToStartOfDay(event);
-
         if (
-          messageTimeStamp.getTime() >= requestStartDate.getTime() &&
-          messageTimeStamp.getTime() <= requestEndDate.getTime()
+          this._eventDateIsBetweenRequestDates(
+            event,
+            requestStartDate,
+            requestEndDate
+          )
         ) {
           this._printFormattedMessage(event);
         }
       });
     });
+  }
+
+  _eventDateEqualsRequestDate(event, requestDate) {
+    let eventTimeStamp = this._setTimeStampToStartOfDay(event);
+    if (eventTimeStamp.getTime() === requestDate.getTime()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  _eventDateIsBetweenRequestDates(event, requestStartDate, requestEndDate) {
+    let eventTimeStamp = this._setTimeStampToStartOfDay(event);
+    if (
+      eventTimeStamp.getTime() >= requestStartDate.getTime() &&
+      eventTimeStamp.getTime() <= requestEndDate.getTime()
+    ) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   _setTimeStampToStartOfDay(event) {

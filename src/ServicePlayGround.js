@@ -20,7 +20,7 @@ service.sync();
 
 // service.createRoom(opts);
 
-service.findMessagesByRoomAndDate("First room", "04 Feb 2019");
+service.findMessagesByRoomAndDateRange("First room", "04 Feb 2019", "05 Feb 2019");
 
 service.startClient();
 

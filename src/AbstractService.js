@@ -45,6 +45,10 @@ module.exports = class AbstractService {
 
   findMessagesByDateRange() {}
 
+  _eventDateEqualsRequestDate() {}
+
+  _eventDateIsBetweenRequestDates() {}
+
   _setTimeStampToStartOfDay(event) {
     let messageTimeStamp = new Date(Date.now() - event.event.unsigned.age);
     messageTimeStamp.setHours(0, 0, 0, 0);
