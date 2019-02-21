@@ -1,5 +1,7 @@
 "use strict";
 
+process.env["NODE_TLS_REJECT_UNAUTHORIZED"] = 0;
+
 const MatrixService = require("./MatrixService");
 const service = new MatrixService();
 
@@ -20,7 +22,9 @@ service.sync();
 
 // service.createRoom(opts);
 
-service.findMessagesByRoomAndDateRange("First room", "04 Feb 2019", "05 Feb 2019");
+service.findMessagesByRoom("SciCat Log");
+
+// service.findMessagesByRoomAndDateRange("First room", "04 Feb 2019", "05 Feb 2019");
 
 service.startClient();
 

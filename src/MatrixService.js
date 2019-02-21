@@ -65,6 +65,7 @@ module.exports = class MatrixService extends AbstractService {
           break;
         case "ERROR":
           console.log(state + ": Could not connect to server");
+          console.log(data.error);
           break;
         case "PREPARED":
           console.log(state);
@@ -233,7 +234,7 @@ module.exports = class MatrixService extends AbstractService {
     if (event.getType() === "m.room.message") {
       let messageTimeStamp = this._formatTimeStamp(event);
 
-      if (event.event.sender === this.userId) {
+      if (event.event.sender === this._userId) {
         console.log(
           `[${messageTimeStamp}] ${event.sender.name} >>> ${
             event.event.content.body
