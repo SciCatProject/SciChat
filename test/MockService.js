@@ -1,6 +1,6 @@
 "use strict";
 
-const AbstractService = require("./AbstractService");
+const AbstractService = require("../src/AbstractService");
 const mockStubs = require("../test/MockStubs");
 const events = mockStubs.events;
 const rooms = mockStubs.rooms;
