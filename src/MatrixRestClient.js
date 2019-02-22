@@ -38,9 +38,26 @@ let getWhoAmI = {
   rejectUnauthorized: false
 };
 
-requestPromise(getWhoAmI)
+let getSync = {
+  method: "GET",
+  uri: baseUrl + "/_matrix/client/r0/sync",
+  headers: {
+    Authorization: "Bearer " + accessToken
+  },
+  body: {
+    timeout: 5000
+  },
+  rejectUnauthorized: false,
+  json: true
+};
+
+let events;
+
+requestPromise(getSync)
   .then(response => {
-    console.log(response);
+    events =
+      response.rooms.join["!GZrqPFfcDEoMHVfNZk:localhost"].timeline.events;
+    // console.log(response.rooms.join["!GZrqPFfcDEoMHVfNZk:localhost"].timeline.events);
     // console.log(response.user_id);
     // console.log(response.access_token);
     // myAccessToken = response.access_token;
@@ -49,5 +66,13 @@ requestPromise(getWhoAmI)
   .catch(err => {
     console.log("Error: " + err);
   });
+
+setTimeout(() => {
+  events.forEach(event => {
+    if (event.type === "m.room.message") {
+      console.log(event.content.body);
+    }
+  });
+}, 5000);
 
 // console.log(accessToken);
