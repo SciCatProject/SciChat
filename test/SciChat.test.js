@@ -3,7 +3,7 @@
 const chai = require("chai");
 const expect = chai.expect;
 
-const MockService = require("../src/MockService");
+const MockService = require("./MockService");
 const service = new MockService();
 
 describe("Unit tests for created services", function() {
