@@ -105,7 +105,7 @@ module.exports = class MatrixRestClient {
       });
   }
 
-  login() {
+  async login() {
     let options = {
       method: "POST",
       uri: this._baseUrl + "/_matrix/client/r0/login",
@@ -121,17 +121,14 @@ module.exports = class MatrixRestClient {
       json: true
     };
 
-    requestPromise(options)
+    await requestPromise(options)
       .then(response => {
         this._userData = response;
       })
       .catch(err => {
         console.error("Error: " + err);
       });
-
-    wait(5000).then(() => {
-      console.log(this._userData);
-    });
+    return this._userData;
   }
 
   // getLoginOptions = {
@@ -163,7 +160,7 @@ module.exports = class MatrixRestClient {
       });
   }
 
-  sync() {
+  async sync() {
     console.log("Syncing...");
     let options = {
       method: "GET",
@@ -179,10 +176,8 @@ module.exports = class MatrixRestClient {
       json: true
     };
 
-    requestPromise(options)
+    await requestPromise(options)
       .then(response => {
-        console.log(response);
-        console.log(response.rooms.join["!GZrqPFfcDEoMHVfNZk:localhost"].state);
         this._rooms = Object.keys(response.rooms.join);
         this._rooms.forEach(room => {
           this._events.push({
@@ -195,5 +190,6 @@ module.exports = class MatrixRestClient {
       .catch(err => {
         console.error("Error: " + err);
       });
+    return this._events;
   }
 };

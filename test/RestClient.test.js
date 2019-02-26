@@ -5,42 +5,7 @@ const chai = require("chai");
 const expect = chai.expect;
 const mockery = require("mockery");
 
-const authData = require("../src/AuthData");
-const baseUrl = authData.baseUrl;
-const accessToken = authData.accessToken;
-const userId = authData.userId;
-const password = authData.password;
-
 const mockStubs = require("./MockStubs");
-
-let testLogin = {
-  method: "POST",
-  uri: baseUrl + "/_matrix/client/r0/login",
-  body: {
-    type: "m.login.password",
-    identifier: {
-      type: "m.id.user",
-      user: userId
-    },
-    password: password
-  },
-  rejectUnauthorized: false,
-  json: true
-};
-
-let testSync = {
-  method: "GET",
-  uri: this._baseUrl + "/_matrix/client/r0/sync",
-  headers: {
-    Authorization: "Bearer " + this._accessToken
-  },
-  body: {
-    full_state: true,
-    timeout: 5000
-  },
-  rejectUnauthorized: false,
-  json: true
-};
 
 afterEach(function(done) {
   mockery.disable();
@@ -60,22 +25,20 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
       done();
     });
-    it("should return an object containing user data", function(done) {
-      const requestPromise = require("request-promise");
-      requestPromise(testLogin)
-        .then(response => {
-          let userData = response;
-          expect(userData).to.be.an("object");
-          expect(userData).to.have.property("userId");
-          expect(userData.userId).to.be.a("string").that.matches(/^@+?/);
-          expect(userData).to.have.property("access_token");
-        })
-        .catch(err => {
-          console.error("Error: " + err);
-        });
-      done();
+    it("should return an object containing user data", async function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      let userData = await client.login();
+      expect(userData).to.be.an("object");
+      expect(userData).to.have.property("user_id");
+      expect(userData.user_id)
+        .to.be.a("string")
+        .that.matches(/^@+?/);
+      expect(userData).to.have.property("access_token");
     });
   });
 
@@ -90,31 +53,21 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
       done();
     });
-    it("should return a json object containing information about the rooms on the server", function(done) {
-      const requestPromise = require("request-promise");
-      let events = [];
-      requestPromise(testSync)
-      .then(response => {
-        let rooms = Object.keys(response.rooms.join);
-        rooms.forEach(room => {
-          events.push({
-            roomId: room,
-            roomEvents: response.rooms.join[room].timeline.events
-          });
-        });
-        expect(rooms).to.be.an("array");
-        expect(rooms).to.contain.a("string").that.matches(/^!+?/);
-        expect(events).to.contain.an("object").that.has.property("roomId").and.property("roomEvents");
-        events.forEach(event => {
-          expect(event.roomEvents).to.be.an("array");
-        })
-      })
-      .catch(err => {
-        console.error("Error: " + err);
+    it("should return an array containing an object with roomId and roomEvents", async function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      let events = await client.sync();
+      expect(events)
+        .to.be.an("array")
+        .with.length(3);
+      events.forEach(event => {
+        expect(event).to.have.all.keys("roomId", "roomEvents");
+        expect(event.roomEvents).to.be.an("array");
       });
-      done();
     });
   });
 });
