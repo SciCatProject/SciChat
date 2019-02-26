@@ -1473,5 +1473,9 @@ module.exports = {
     ]
   },
 
+  sendMessageToRoomResponse: {
+    event_id: "$YUwRidLecu:localhost"
+  },
+
   whoAmI: { user_id: "@scichat:localhost" }
 };

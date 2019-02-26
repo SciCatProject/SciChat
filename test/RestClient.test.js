@@ -96,6 +96,7 @@ describe("Unit tests for the rest client", function() {
       expect(newRoom.room_id).to.match(/^!+?/);
     });
   });
+
   describe("#findAllRooms()", function() {
     before(function(done) {
       mockery.enable({
@@ -124,6 +125,36 @@ describe("Unit tests for the rest client", function() {
         expect(room.canonical_alias).to.match(/^#+?/);
         expect(room.room_id).to.match(/^!+?/);
       });
+    });
+  });
+
+  describe("#sendMessageToRoom()", function() {
+    before(function(done) {
+      mockery.enable({
+        useCleanCache: true
+      });
+
+      mockery.registerMock("request-promise", function() {
+        let response = mockStubs.sendMessageToRoomResponse;
+        return bluebird.resolve(response);
+      });
+
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
+      done();
+    });
+    it("should return an object with the event_id of the message that was sent", async function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      let messageData = {
+        roomName: "ERIC",
+        message: "Hello ERIC!"
+      };
+      let messageResponse = await client.sendMessageToRoom(messageData);
+      expect(messageResponse)
+        .to.be.an("object")
+        .that.has.key("event_id");
+      expect(messageResponse.event_id).to.match(/^\$+?/);
     });
   });
 });

@@ -106,6 +106,43 @@ module.exports = class MatrixRestClient {
       });
   }
 
+  async sendMessageToRoom({ roomName, message }) {
+    let roomId;
+    let allRooms = this._rooms;
+    allRooms.forEach(room => {
+      if (room.name.toLowerCase() === roomName.toLowerCase()) {
+        roomId = room.room_id;
+      }
+    });
+    let options = {
+      method: "PUT",
+      uri:
+        this._baseUrl +
+        `/_matrix/client/r0/rooms/${roomId}/state/m.room.message`,
+      headers: {
+        Authorization: "Bearer " + this._accessToken
+      },
+      body: {
+        body: message,
+        msgtype: "m.text"
+      },
+      rejectUnauthorized: false,
+      json: true
+    };
+
+    let eventId;
+
+    await requestPromise(options)
+      .then(response => {
+        console.log(response);
+        eventId = response;
+      })
+      .catch(err => {
+        console.error("Error: " + err);
+      });
+    return eventId;
+  }
+
   async login() {
     let options = {
       method: "POST",
@@ -131,12 +168,6 @@ module.exports = class MatrixRestClient {
       });
     return this._userData;
   }
-
-  // getLoginOptions = {
-  //   method: "GET",
-  //   uri: baseUrl + "/_matrix/client/r0/login",
-  //   rejectUnauthorized: false
-  // };
 
   whoAmI() {
     let options = {
