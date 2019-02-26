@@ -1444,5 +1444,7 @@ module.exports = {
     }
   },
 
+  createRoomResponse: { room_id: "!sCLffhQkPDsFYbEUCV:localhost" },
+
   whoAmI: { user_id: "@scichat:localhost" }
 };

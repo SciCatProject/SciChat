@@ -70,4 +70,30 @@ describe("Unit tests for the rest client", function() {
       });
     });
   });
+
+  describe("#createRoom()", function() {
+    before(function(done) {
+      mockery.enable({
+        useCleanCache: true
+      });
+
+      mockery.registerMock("request-promise", function() {
+        let response = mockStubs.createRoomResponse;
+        return bluebird.resolve(response);
+      });
+
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
+      done();
+    });
+    it("should return an object containing the room_id of the new room", async function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      let newRoom = await client.createRoom();
+      expect(newRoom)
+        .to.be.an("object")
+        .that.has.key("room_id");
+      expect(newRoom.room_id).to.match(/^!+?/);
+    });
+  });
 });

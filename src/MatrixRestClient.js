@@ -41,13 +41,16 @@ module.exports = class MatrixRestClient {
       json: true
     };
 
+    let newRoom;
+
     await requestPromise(options)
       .then(response => {
-        console.log(response);
+        newRoom = response;
       })
       .catch(err => {
         console.error("Error: " + err);
       });
+    return newRoom;
   }
 
   async findAllRooms() {
