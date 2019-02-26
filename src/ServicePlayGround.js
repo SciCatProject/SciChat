@@ -5,4 +5,4 @@ const client = new MatrixRestClient();
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-client.sync();
+client.findAllRooms();

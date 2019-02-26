@@ -64,16 +64,14 @@ module.exports = class MatrixRestClient {
       json: true
     };
 
-    let paginationToken;
-
     await requestPromise(options)
       .then(response => {
-        console.log(response);
-        paginationToken = response.next_batch;
+        this._rooms = response.chunk;
       })
       .catch(err => {
         console.error("Error: " + err);
       });
+    return this._rooms;
   }
 
   findEventsByRoom() {
@@ -181,11 +179,11 @@ module.exports = class MatrixRestClient {
 
     await requestPromise(options)
       .then(response => {
-        this._rooms = Object.keys(response.rooms.join);
-        this._rooms.forEach(room => {
+        let room_ids = Object.keys(response.rooms.join);
+        room_ids.forEach(room_id => {
           this._events.push({
-            roomId: room,
-            roomEvents: response.rooms.join[room].timeline.events
+            roomId: room_id,
+            roomEvents: response.rooms.join[room_id].timeline.events
           });
         });
         console.log("Sync succesful");

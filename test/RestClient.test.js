@@ -96,4 +96,34 @@ describe("Unit tests for the rest client", function() {
       expect(newRoom.room_id).to.match(/^!+?/);
     });
   });
+  describe("#findAllRooms()", function() {
+    before(function(done) {
+      mockery.enable({
+        useCleanCache: true
+      });
+
+      mockery.registerMock("request-promise", function() {
+        let response = mockStubs.findAllRoomsResponse;
+        return bluebird.resolve(response);
+      });
+
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
+      done();
+    });
+    it("should return an array containing information about all rooms", async function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      let allRooms = await client.findAllRooms();
+      expect(allRooms).to.be.an("array");
+      allRooms.forEach(room => {
+        expect(room).to.be.an("object");
+        expect(room).to.have.property("canonical_alias");
+        expect(room).to.have.property("name");
+        expect(room).to.have.property("room_id");
+        expect(room.canonical_alias).to.match(/^#+?/);
+        expect(room.room_id).to.match(/^!+?/);
+      });
+    });
+  });
 });
