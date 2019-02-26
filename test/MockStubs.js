@@ -1160,5 +1160,32 @@ module.exports = {
       _events: {},
       _eventsCount: 9
     }
-  ]
+  ],
+
+  loginResponse: {
+    user_id: "@scichat:localhost",
+    access_token: "abc123",
+    device_id: "GHTYAJCE"
+  },
+
+  syncResponse: {
+    next_batch: "s31_906_0_1_9_1_1_13_1",
+    device_one_time_keys_count: {},
+    account_data: { events: [[Object], [Object]] },
+    to_device: { events: [] },
+    groups: { leave: {}, join: {}, invite: {} },
+    presence: { events: [[Object]] },
+    device_lists: { changed: [], left: [] },
+    rooms: {
+      leave: {},
+      join: {
+        "!GZrqPFfcDEoMHVfNZk:localhost": [Object],
+        "!vsaQURyAlhfBlxejio:localhost": [Object],
+        "!sCLffhQkPDsFYbEUCV:localhost": [Object]
+      },
+      invite: {}
+    }
+  },
+
+  whoAmI: { user_id: "@scichat:localhost" }
 };

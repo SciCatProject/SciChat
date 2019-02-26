@@ -12,8 +12,10 @@
     "rxjs": "^6.4.0"
   },
   "devDependencies": {
+    "bluebird": "^3.5.3",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
+    "mockery": "^2.1.0",
     "sinon": "^7.2.3",
     "supertest": "^3.4.2"
   },
