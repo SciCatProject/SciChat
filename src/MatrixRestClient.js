@@ -21,57 +21,57 @@ module.exports = class MatrixRestClient {
     this._userData;
   }
 
-  async createRoom() {
-    let options = {
-      method: "POST",
-      uri: this._baseUrl + "/_matrix/client/r0/createRoom",
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      body: {
-        visibility: "public",
-        room_alias_name: "scicatrest",
-        name: "SciCat Log from rest",
-        topic: "Chat logging for SciCat",
-        creation_content: {
-          "m.federate": false
-        }
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+  createRoom() {
+    return new Promise((resolve, reject) => {
+      let options = {
+        method: "POST",
+        uri: this._baseUrl + "/_matrix/client/r0/createRoom",
+        headers: {
+          Authorization: "Bearer " + this._accessToken
+        },
+        body: {
+          visibility: "public",
+          room_alias_name: "scicatrest",
+          name: "SciCat Log from rest",
+          topic: "Chat logging for SciCat",
+          creation_content: {
+            "m.federate": false
+          }
+        },
+        rejectUnauthorized: false,
+        json: true
+      };
 
-    let newRoom;
-
-    await requestPromise(options)
-      .then(response => {
-        newRoom = response;
-      })
-      .catch(err => {
-        console.error("Error: " + err);
-      });
-    return newRoom;
+      requestPromise(options)
+        .then(response => {
+          resolve(response);
+        })
+        .catch(err => {
+          console.error("Error: " + err);
+        });
+    });
   }
 
-  async findAllRooms() {
-    let options = {
-      method: "GET",
-      uri: this._baseUrl + "/_matrix/client/r0/publicRooms",
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+  findAllRooms() {
+    return new Promise((resolve, reject) => {
+      let options = {
+        method: "GET",
+        uri: this._baseUrl + "/_matrix/client/r0/publicRooms",
+        headers: {
+          Authorization: "Bearer " + this._accessToken
+        },
+        rejectUnauthorized: false,
+        json: true
+      };
 
-    await requestPromise(options)
-      .then(response => {
-        this._rooms = response.chunk;
-      })
-      .catch(err => {
-        console.error("Error: " + err);
-      });
-    return this._rooms;
+      requestPromise(options)
+        .then(response => {
+          resolve(response.chunk);
+        })
+        .catch(err => {
+          console.error("Error: " + err);
+        });
+    });
   }
 
   findEventsByRoom() {
@@ -106,41 +106,40 @@ module.exports = class MatrixRestClient {
       });
   }
 
-  async sendMessageToRoom({ roomName, message }) {
-    let roomId;
-    let allRooms = this._rooms;
-    allRooms.forEach(room => {
-      if (room.name.toLowerCase() === roomName.toLowerCase()) {
-        roomId = room.room_id;
-      }
-    });
-    let options = {
-      method: "PUT",
-      uri:
-        this._baseUrl +
-        `/_matrix/client/r0/rooms/${roomId}/state/m.room.message`,
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      body: {
-        body: message,
-        msgtype: "m.text"
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+  sendMessageToRoom({ roomName, message }) {
+    return Promise.resolve(this.findAllRooms())
+      .then(allRooms => {
+        let roomId;
+        console.log("Inside sendMessage: " + allRooms);
+        allRooms.forEach(room => {
+          console.log("Inside sendMessage for-loop: " + room);
+          if (room.name.toLowerCase() === roomName.toLowerCase()) {
+            console.log("Inside sendMessage if-statement: " + room.room_id);
+            roomId = room.room_id;
+          }
+        });
+        console.log("roomId from first then in sendMessage: " + roomId);
 
-    let eventId;
-
-    await requestPromise(options)
-      .then(response => {
-        console.log(response);
-        eventId = response;
+        let options = {
+          method: "PUT",
+          uri:
+            this._baseUrl +
+            `/_matrix/client/r0/rooms/${roomId}/state/m.room.message`,
+          headers: {
+            Authorization: "Bearer " + this._accessToken
+          },
+          body: {
+            body: message,
+            msgtype: "m.text"
+          },
+          rejectUnauthorized: false,
+          json: true
+        };
+        return requestPromise(options);
       })
       .catch(err => {
         console.error("Error: " + err);
       });
-    return eventId;
   }
 
   async login() {
@@ -192,36 +191,38 @@ module.exports = class MatrixRestClient {
       });
   }
 
-  async sync() {
+  sync() {
     console.log("Syncing...");
-    let options = {
-      method: "GET",
-      uri: this._baseUrl + "/_matrix/client/r0/sync",
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      body: {
-        full_state: true,
-        timeout: 5000
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+    return new Promise((resolve, reject) => {
+      let options = {
+        method: "GET",
+        uri: this._baseUrl + "/_matrix/client/r0/sync",
+        headers: {
+          Authorization: "Bearer " + this._accessToken
+        },
+        body: {
+          full_state: true,
+          timeout: 5000
+        },
+        rejectUnauthorized: false,
+        json: true
+      };
 
-    await requestPromise(options)
-      .then(response => {
-        let room_ids = Object.keys(response.rooms.join);
-        room_ids.forEach(room_id => {
-          this._events.push({
-            roomId: room_id,
-            roomEvents: response.rooms.join[room_id].timeline.events
+      requestPromise(options)
+        .then(response => {
+          let room_ids = Object.keys(response.rooms.join);
+          room_ids.forEach(room_id => {
+            this._events.push({
+              roomId: room_id,
+              roomEvents: response.rooms.join[room_id].timeline.events
+            });
           });
+          resolve(this._events);
+          console.log("Sync succesful");
+        })
+        .catch(err => {
+          console.error("Error: " + err);
         });
-        console.log("Sync succesful");
-      })
-      .catch(err => {
-        console.error("Error: " + err);
-      });
-    return this._events;
+    });
   }
 };

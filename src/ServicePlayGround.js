@@ -7,17 +7,15 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 let messageData = {
   roomName: "ERIC",
-  message: "Hello ERIC!"
+  message: "Testing sendMessageToRoom() yet again"
 };
 
-client.sync().then(eventList => {
-  eventList.forEach(event => {
-    if (event.roomId === "!vsaQURyAlhfBlxejio:localhost") {
-      console.log(event.roomEvents);
+client.sync().then(response => {
+  response.forEach(room => {
+    if (room.roomId === "!vsaQURyAlhfBlxejio:localhost") {
+      room.roomEvents.forEach(event => {
+        console.log(new Date(event.origin_server_ts).toDateString());
+      });
     }
   });
-});
-
-client.findAllRooms().then(response => {
-  console.log(response);
 });
