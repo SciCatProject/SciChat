@@ -29,7 +29,7 @@ describe("Unit tests for the rest client", function() {
 
       done();
     });
-    it("should return an object containing user data", function(done) {
+    it("should return an object containing user data", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
       client.login().then(userData => {
@@ -40,7 +40,6 @@ describe("Unit tests for the rest client", function() {
           .that.matches(/^@+?/);
         expect(userData).to.have.property("access_token");
       });
-      done();
     });
   });
 
@@ -59,19 +58,20 @@ describe("Unit tests for the rest client", function() {
 
       done();
     });
-    it("should return an array containing an object with roomId and roomEvents", function(done) {
+    it("should return an object containing information about rooms and events", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
-      client.sync().then(events => {
-        expect(events)
-          .to.be.an("array")
-          .with.length(3);
-        events.forEach(event => {
-          expect(event).to.have.all.keys("roomId", "roomEvents");
-          expect(event.roomEvents).to.be.an("array");
+      return client.sync().then(syncResponse => {
+        expect(syncResponse).to.be.an("object");
+        let roomIds = Object.keys(syncResponse.rooms.join);
+        expect(roomIds).to.be.an("array");
+        roomIds.forEach(roomId => {
+          expect(roomId).to.match(/^!+?/);
+          expect(syncResponse.rooms.join[roomId].timeline).to.have.key(
+            "events"
+          );
         });
       });
-      done();
     });
   });
 
@@ -90,16 +90,15 @@ describe("Unit tests for the rest client", function() {
 
       done();
     });
-    it("should return an object containing the room_id of the new room", function(done) {
+    it("should return an object containing the room_id of the new room", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
-      client.createRoom().then(newRoom => {
+      return client.createRoom().then(newRoom => {
         expect(newRoom)
           .to.be.an("object")
           .that.has.key("room_id");
         expect(newRoom.room_id).to.match(/^!+?/);
       });
-      done();
     });
   });
 
@@ -118,10 +117,10 @@ describe("Unit tests for the rest client", function() {
 
       done();
     });
-    it("should return an object containing information on the room `ERIC`", function(done) {
+    it("should return an object containing information on the room `ERIC`", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
-      client.findRoomByName("ERIC").then(room => {
+      return client.findRoomByName("ERIC").then(room => {
         expect(room).to.be.an("object");
         expect(room).to.have.property("canonical_alias");
         expect(room).to.have.property("name");
@@ -130,7 +129,6 @@ describe("Unit tests for the rest client", function() {
         expect(room.name).to.equal("ERIC");
         expect(room.room_id).to.match(/^!+?/);
       });
-      done();
     });
   });
 
@@ -149,10 +147,10 @@ describe("Unit tests for the rest client", function() {
 
       done();
     });
-    it("should return an array containing information about all rooms", function(done) {
+    it("should return an array containing information about all rooms", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
-      client.findAllRooms().then(allRooms => {
+      return client.findAllRooms().then(allRooms => {
         expect(allRooms).to.be.an("array");
         allRooms.forEach(room => {
           expect(room).to.be.an("object");
@@ -163,7 +161,6 @@ describe("Unit tests for the rest client", function() {
           expect(room.room_id).to.match(/^!+?/);
         });
       });
-      done();
     });
   });
 
@@ -182,10 +179,10 @@ describe("Unit tests for the rest client", function() {
 
       done();
     });
-    it("should return an object containing roomId and an array contatining all events for room `ERIC`", function(done) {
+    it("should return an object containing roomId and an array contatining all events for room `ERIC`", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
-      client.findEventsByRoom("ERIC").then(room => {
+      return client.findEventsByRoom("ERIC").then(room => {
         expect(room).to.be.an("object");
         expect(room).to.have.property("roomId");
         expect(room.roomId).to.match(/^!+?/);
@@ -196,7 +193,6 @@ describe("Unit tests for the rest client", function() {
           expect(event.event_id).to.match(/^\$+?/);
         });
       });
-      done();
     });
   });
 
@@ -215,20 +211,19 @@ describe("Unit tests for the rest client", function() {
 
       done();
     });
-    it("should return an object with the event_id of the message that was sent", function(done) {
+    it("should return an object with the event_id of the message that was sent", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
       let messageData = {
         roomName: "ERIC",
         message: "Hello ERIC!"
       };
-      client.sendMessageToRoom(messageData).then(messageResponse => {
+      return client.sendMessageToRoom(messageData).then(messageResponse => {
         expect(messageResponse)
           .to.be.an("object")
           .that.has.key("event_id");
         expect(messageResponse.event_id).to.match(/^\$+?/);
       });
-      done();
     });
   });
 });

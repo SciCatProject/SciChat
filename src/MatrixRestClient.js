@@ -37,19 +37,7 @@ module.exports = class MatrixRestClient {
     };
 
     return requestPromise(options).catch(err => {
-      console.error("Error: " + err);
-    });
-  }
-
-  findRoomByName(requestName) {
-    return this.findAllRooms().then(allRooms => {
-      let foundRoom;
-      allRooms.forEach(room => {
-        if (room.name.toLowerCase() === requestName.toLowerCase()) {
-          foundRoom = room;
-        }
-      });
-      return foundRoom;
+      console.error("Error in createRoom(): " + err);
     });
   }
 
@@ -66,59 +54,87 @@ module.exports = class MatrixRestClient {
 
     return requestPromise(options)
       .then(response => {
-        return response.chunk;
+        return new Promise((resolve, reject) => {
+          resolve(response.chunk);
+        });
       })
       .catch(err => {
-        console.error("Error: " + err);
+        console.error("Error in findAllRooms(): " + err);
       });
+  }
+
+  findRoomByName(requestName) {
+    return new Promise((resolve, reject) => {
+      return this.findAllRooms()
+        .then(allRooms => {
+          let foundRoom;
+          allRooms.forEach(room => {
+            if (room.name.toLowerCase() === requestName.toLowerCase()) {
+              foundRoom = room;
+            }
+          });
+          resolve(foundRoom);
+        })
+        .catch(err => {
+          console.error("Error in findRoomByName(): " + err);
+        });
+    });
   }
 
   findEventsByRoom(roomName) {
     let roomId;
-    return this.findRoomByName(roomName)
-      .then(room => {
-        roomId = room.room_id;
-        return this.sync();
-      })
-      .then(syncResponse => {
-        let syncRoomIds = Object.keys(syncResponse.rooms.join);
-        let roomEvents = {};
-        syncRoomIds.forEach(syncRoomId => {
-          if (syncRoomId === roomId) {
-            roomEvents.roomId = roomId;
-            roomEvents.events = syncResponse.rooms.join[roomId].timeline.events;
-          }
-          return roomEvents;
+    return new Promise((resolve, reject) => {
+      return this.findRoomByName(roomName)
+        .then(room => {
+          roomId = room.room_id;
+          return this.sync();
+        })
+        .then(syncResponse => {
+          let syncRoomIds = Object.keys(syncResponse.rooms.join);
+          let roomEvents = {};
+          syncRoomIds.forEach(syncRoomId => {
+            if (syncRoomId === roomId) {
+              roomEvents.roomId = roomId;
+              roomEvents.events =
+                syncResponse.rooms.join[roomId].timeline.events;
+            }
+          });
+          resolve(roomEvents);
+        })
+        .catch(err => {
+          console.error("Error in findEventsByRoom(): " + err);
         });
-      })
-      .catch(err => {
-        console.error("Error: " + err);
-      });
+    });
   }
 
   sendMessageToRoom({ roomName, message }) {
-    return this.findRoomByName(roomName)
-      .then(room => {
-        let options = {
-          method: "PUT",
-          uri:
-            this._baseUrl +
-            `/_matrix/client/r0/rooms/${room.room_id}/state/m.room.message`,
-          headers: {
-            Authorization: "Bearer " + this._accessToken
-          },
-          body: {
-            body: message,
-            msgtype: "m.text"
-          },
-          rejectUnauthorized: false,
-          json: true
-        };
-        return requestPromise(options);
-      })
-      .catch(err => {
-        console.error("Error: " + err);
-      });
+    return new Promise((resolve, reject) => {
+      return this.findRoomByName(roomName)
+        .then(room => {
+          let options = {
+            method: "PUT",
+            uri:
+              this._baseUrl +
+              `/_matrix/client/r0/rooms/${room.room_id}/state/m.room.message`,
+            headers: {
+              Authorization: "Bearer " + this._accessToken
+            },
+            body: {
+              body: message,
+              msgtype: "m.text"
+            },
+            rejectUnauthorized: false,
+            json: true
+          };
+          return requestPromise(options);
+        })
+        .then(response => {
+          resolve(response);
+        })
+        .catch(err => {
+          console.error("Error in sendMessageToRoom(): " + err);
+        });
+    });
   }
 
   login() {
@@ -138,7 +154,7 @@ module.exports = class MatrixRestClient {
     };
 
     return requestPromise(options).catch(err => {
-      console.error("Error: " + err);
+      console.error("Error in login(): " + err);
     });
   }
 
@@ -162,7 +178,7 @@ module.exports = class MatrixRestClient {
         return response;
       })
       .catch(err => {
-        console.error("Error: " + err);
+        console.error("Error in whoAmI(): " + err);
       });
   }
 
@@ -188,7 +204,7 @@ module.exports = class MatrixRestClient {
         return response;
       })
       .catch(err => {
-        console.error("Error: " + err);
+        console.error("Error in sync(): " + err);
       });
   }
 };
