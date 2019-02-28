@@ -103,6 +103,37 @@ describe("Unit tests for the rest client", function() {
     });
   });
 
+  describe("#findRoomByName()", function() {
+    before(function(done) {
+      mockery.enable({
+        useCleanCache: true
+      });
+
+      mockery.registerMock("request-promise", function() {
+        let response = mockStubs.findRoomByNameResponse;
+        return bluebird.resolve(response);
+      });
+
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
+      done();
+    });
+    it("should return an object containing information on the room `ERIC`", function(done) {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      client.findRoomByName("ERIC").then(room => {
+        expect(room).to.be.an("object");
+        expect(room).to.have.property("canonical_alias");
+        expect(room).to.have.property("name");
+        expect(room).to.have.property("room_id");
+        expect(room.canonical_alias).to.match(/^#+?/);
+        expect(room.name).to.equal("ERIC");
+        expect(room.room_id).to.match(/^!+?/);
+      });
+      done();
+    });
+  });
+
   describe("#findAllRooms()", function() {
     before(function(done) {
       mockery.enable({

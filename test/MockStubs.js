@@ -1446,6 +1446,17 @@ module.exports = {
 
   createRoomResponse: { room_id: "!sCLffhQkPDsFYbEUCV:localhost" },
 
+  findRoomByNameResponse: {
+    canonical_alias: "#ERIC:localhost",
+    name: "ERIC",
+    world_readable: false,
+    topic: "Log for events at ESS ERIC",
+    num_joined_members: 1,
+    room_id: "!vsaQURyAlhfBlxejio:localhost",
+    guest_can_join: false,
+    aliases: ["#ERIC:localhost"]
+  },
+
   findAllRoomsResponse: {
     total_room_count_estimate: 3,
     next_batch: "hKFwBKFzH6Fkw6FuAg",

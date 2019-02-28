@@ -52,6 +52,20 @@ module.exports = class MatrixRestClient {
     });
   }
 
+  findRoomByName(requestName) {
+    return Promise.resolve(this.findAllRooms()).then(allRooms => {
+      let foundRoom;
+      allRooms.forEach(room => {
+        if (room.name.toLowerCase() === requestName.toLowerCase()) {
+          foundRoom = room;
+        }
+      });
+      return new Promise((resolve, reject) => {
+        resolve(foundRoom);
+      });
+    });
+  }
+
   findAllRooms() {
     return new Promise((resolve, reject) => {
       let options = {
@@ -75,7 +89,6 @@ module.exports = class MatrixRestClient {
   }
 
   findEventsByRoom() {
-    console.log("Retrieving events...");
     let options = {
       method: "GET",
       uri: this._baseUrl + "/_matrix/client/r0/sync",
@@ -99,7 +112,6 @@ module.exports = class MatrixRestClient {
             roomEvents: response.rooms.join[room].timeline.events
           });
         });
-        console.log("Sync succesful");
       })
       .catch(err => {
         console.error("Error: " + err);
@@ -107,24 +119,13 @@ module.exports = class MatrixRestClient {
   }
 
   sendMessageToRoom({ roomName, message }) {
-    return Promise.resolve(this.findAllRooms())
-      .then(allRooms => {
-        let roomId;
-        console.log("Inside sendMessage: " + allRooms);
-        allRooms.forEach(room => {
-          console.log("Inside sendMessage for-loop: " + room);
-          if (room.name.toLowerCase() === roomName.toLowerCase()) {
-            console.log("Inside sendMessage if-statement: " + room.room_id);
-            roomId = room.room_id;
-          }
-        });
-        console.log("roomId from first then in sendMessage: " + roomId);
-
+    return Promise.resolve(this.findRoomByName(roomName))
+      .then(room => {
         let options = {
           method: "PUT",
           uri:
             this._baseUrl +
-            `/_matrix/client/r0/rooms/${roomId}/state/m.room.message`,
+            `/_matrix/client/r0/rooms/${room.room_id}/state/m.room.message`,
           headers: {
             Authorization: "Bearer " + this._accessToken
           },

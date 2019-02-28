@@ -10,12 +10,6 @@ let messageData = {
   message: "Testing sendMessageToRoom() yet again"
 };
 
-client.sync().then(response => {
-  response.forEach(room => {
-    if (room.roomId === "!vsaQURyAlhfBlxejio:localhost") {
-      room.roomEvents.forEach(event => {
-        console.log(new Date(event.origin_server_ts).toDateString());
-      });
-    }
-  });
+client.findRoomByName("ERIC").then(room => {
+  console.log(room);
 });
