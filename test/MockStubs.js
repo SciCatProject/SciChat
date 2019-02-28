@@ -1484,6 +1484,101 @@ module.exports = {
     ]
   },
 
+  findEventsByRoomResponse: {
+    roomId: "!vsaQURyAlhfBlxejio:localhost",
+    events: [
+      {
+        origin_server_ts: 1550755872076,
+        sender: "@scichat:localhost",
+        event_id: "$15507558723mrOMM:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.canonical_alias"
+      },
+      {
+        origin_server_ts: 1550755872325,
+        sender: "@scichat:localhost",
+        event_id: "$15507558724oBAMA:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.join_rules"
+      },
+      {
+        origin_server_ts: 1550755872523,
+        sender: "@scichat:localhost",
+        event_id: "$15507558725hBKve:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.history_visibility"
+      },
+      {
+        origin_server_ts: 1550755872739,
+        sender: "@scichat:localhost",
+        event_id: "$15507558726BUvnk:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.name"
+      },
+      {
+        origin_server_ts: 1550755872955,
+        sender: "@scichat:localhost",
+        event_id: "$15507558727nHEDp:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.topic"
+      },
+      {
+        origin_server_ts: 1551197623583,
+        sender: "@scichat:localhost",
+        event_id: "$15511976239DLtHv:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.message"
+      },
+      {
+        origin_server_ts: 1551348890097,
+        sender: "@scichat:localhost",
+        event_id: "$15513488900zaXKz:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.message"
+      },
+      {
+        origin_server_ts: 1551349596774,
+        sender: "@scichat:localhost",
+        event_id: "$15513495962KgzNZ:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.message"
+      },
+      {
+        origin_server_ts: 1551349767774,
+        sender: "@scichat:localhost",
+        event_id: "$15513497673MryJt:localhost",
+        unsigned: [Object],
+        state_key: "",
+        content: [Object],
+        type: "m.room.message"
+      },
+      {
+        origin_server_ts: 1551359026169,
+        sender: "@scichat:localhost",
+        event_id: "$155135902612CcXXh:localhost",
+        unsigned: [Object],
+        content: [Object],
+        type: "m.room.message"
+      }
+    ]
+  },
+
   sendMessageToRoomResponse: {
     event_id: "$YUwRidLecu:localhost"
   },

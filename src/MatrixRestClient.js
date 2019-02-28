@@ -88,34 +88,30 @@ module.exports = class MatrixRestClient {
     });
   }
 
-  findEventsByRoom() {
-    let options = {
-      method: "GET",
-      uri: this._baseUrl + "/_matrix/client/r0/sync",
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      body: {
-        full_state: true,
-        timeout: 5000
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
-
-    requestPromise(options)
-      .then(response => {
-        this._rooms = Object.keys(response.rooms.join);
-        this._rooms.forEach(room => {
-          this._events.push({
-            roomId: room,
-            roomEvents: response.rooms.join[room].timeline.events
+  findEventsByRoom(roomName) {
+    return new Promise((resolve, reject) => {
+      let roomId;
+      let roomEvents = {};
+      return Promise.resolve(this.findRoomByName(roomName))
+        .then(room => {
+          roomId = room.room_id;
+          return Promise.resolve(this.sync());
+        })
+        .then(syncResponse => {
+          let syncRoomIds = Object.keys(syncResponse.rooms.join);
+          syncRoomIds.forEach(syncRoomId => {
+            if (syncRoomId === roomId) {
+              roomEvents.roomId = roomId;
+              roomEvents.events =
+                syncResponse.rooms.join[roomId].timeline.events;
+            }
+            resolve(roomEvents);
           });
+        })
+        .catch(err => {
+          console.error("Error: " + err);
         });
-      })
-      .catch(err => {
-        console.error("Error: " + err);
-      });
+    });
   }
 
   sendMessageToRoom({ roomName, message }) {
@@ -211,14 +207,7 @@ module.exports = class MatrixRestClient {
 
       requestPromise(options)
         .then(response => {
-          let room_ids = Object.keys(response.rooms.join);
-          room_ids.forEach(room_id => {
-            this._events.push({
-              roomId: room_id,
-              roomEvents: response.rooms.join[room_id].timeline.events
-            });
-          });
-          resolve(this._events);
+          resolve(response);
           console.log("Sync succesful");
         })
         .catch(err => {

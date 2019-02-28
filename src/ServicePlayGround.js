@@ -10,6 +10,6 @@ let messageData = {
   message: "Testing sendMessageToRoom() yet again"
 };
 
-client.findRoomByName("ERIC").then(room => {
-  console.log(room);
+client.findEventsByRoom("ERIC").then(roomEvents => {
+  console.log(roomEvents);
 });
