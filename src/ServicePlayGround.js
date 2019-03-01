@@ -10,6 +10,6 @@ let messageData = {
   message: "Testing sendMessageToRoom() yet again"
 };
 
-client.sync().then(syncResponse => {
-  console.log(syncResponse);
+client.whoAmI().then(response => {
+  console.log(response);
 });
