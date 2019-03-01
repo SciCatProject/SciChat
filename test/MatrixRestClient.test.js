@@ -4,12 +4,14 @@ const bluebird = require("bluebird");
 const chai = require("chai");
 const expect = chai.expect;
 const mockery = require("mockery");
+const sandbox = require("sinon").createSandbox();
 
 const mockStubs = require("./MockStubs");
 
 afterEach(function(done) {
   mockery.disable();
   mockery.deregisterAll();
+  sandbox.restore();
   done();
 });
 
@@ -120,6 +122,9 @@ describe("Unit tests for the rest client", function() {
     it("should return an object containing information on the room `ERIC`", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
+      sandbox
+        .stub(MatrixRestClient.prototype, "findAllRooms")
+        .resolves(mockStubs.findAllRoomsReturns);
       return client.findRoomByName("ERIC").then(room => {
         expect(room).to.be.an("object");
         expect(room).to.have.property("canonical_alias");
@@ -182,6 +187,12 @@ describe("Unit tests for the rest client", function() {
     it("should return an object containing roomId and an array contatining all events for room `ERIC`", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
+      sandbox
+        .stub(MatrixRestClient.prototype, "findAllRooms")
+        .resolves(mockStubs.findAllRoomsReturns);
+      sandbox
+        .stub(MatrixRestClient.prototype, "sync")
+        .resolves(mockStubs.syncResponse);
       return client.findEventsByRoom("ERIC").then(room => {
         expect(room).to.be.an("object");
         expect(room).to.have.property("roomId");
@@ -214,6 +225,9 @@ describe("Unit tests for the rest client", function() {
     it("should return an object with the event_id of the message that was sent", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
+      sandbox
+        .stub(MatrixRestClient.prototype, "findAllRooms")
+        .resolves(mockStubs.findAllRoomsReturns);
       let messageData = {
         roomName: "ERIC",
         message: "Hello ERIC!"

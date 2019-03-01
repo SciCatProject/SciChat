@@ -8,16 +8,14 @@
   "dependencies": {
     "matrix-js-sdk": "^0.14.3",
     "request": "^2.88.0",
-    "request-promise": "^4.2.4",
-    "rxjs": "^6.4.0"
+    "request-promise": "^4.2.4"
   },
   "devDependencies": {
     "bluebird": "^3.5.3",
     "chai": "^4.2.0",
     "mocha": "^5.2.0",
     "mockery": "^2.1.0",
-    "sinon": "^7.2.3",
-    "supertest": "^3.4.2"
+    "sinon": "^7.2.3"
   },
   "repository": {
     "type": "",
