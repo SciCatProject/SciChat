@@ -131,6 +131,94 @@ module.exports = class MatrixRestClient {
       });
   }
 
+  findMessagesByRoomAndDate(roomName, date) {
+    return this.findEventsByRoom(roomName)
+      .then(roomEvents => {
+        let messages = [];
+        roomEvents.events.forEach(event => {
+          if (
+            this.eventTypeIsMessage(event) &&
+            this.eventDateEqualsRequestDate(event, date)
+          ) {
+            messages.push(event);
+          }
+        });
+        return new Promise((resolve, reject) => {
+          resolve(messages);
+        });
+      })
+      .catch(err => {
+        console.error("Error in findMessagesByRoomAndDate(): " + err);
+      });
+  }
+
+  findMessagesByRoomAndDateRange(roomName, startDate, endDate) {
+    return this.findEventsByRoom(roomName)
+      .then(roomEvents => {
+        let messages = [];
+        roomEvents.events.forEach(event => {
+          if (
+            this.eventTypeIsMessage(event) &&
+            this.eventDateIsBetweenRequestDates(event, startDate, endDate)
+          ) {
+            messages.push(event);
+          }
+        });
+        return new Promise((resolve, reject) => {
+          resolve(messages);
+        });
+      })
+      .catch(err => {
+        console.error("Error in findMessagesByRoomAndDateRange()" + err);
+      });
+  }
+
+  eventTypeIsMessage(event) {
+    if (event.type === "m.room.message") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  eventDateEqualsRequestDate(event, date) {
+    let messageTimeStamp = new Date(event.origin_server_ts);
+    messageTimeStamp.setUTCHours(0, 0, 0, 0);
+    let requestDate = new Date(date);
+    if (messageTimeStamp.getTime() === requestDate.getTime()) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  eventDateIsBetweenRequestDates(event, startDate, endDate) {
+    let messageTimeStamp = new Date(event.origin_server_ts);
+    messageTimeStamp.setUTCHours(0, 0, 0, 0);
+    let requestStartDate = new Date(startDate);
+    let requestEndDate = new Date(endDate);
+    if (
+      messageTimeStamp.getTime() > requestStartDate.getTime() &&
+      messageTimeStamp.getTime() < requestEndDate.getTime()
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  printFormattedMessages(messages) {
+    messages.forEach(message => {
+      let messageTimeStamp = new Date(message.origin_server_ts)
+        .toISOString()
+        .replace("T", " ")
+        .replace(/\.\w+/, "");
+      console.log(
+        `[${messageTimeStamp}] ${message.sender} >>> ${message.content.body}`
+      );
+    });
+  }
+
   login() {
     let options = {
       method: "POST",

@@ -240,4 +240,100 @@ describe("Unit tests for the rest client", function() {
       });
     });
   });
+
+  describe("#findMessagesByRoomAndDate()", function() {
+    before(function(done) {
+      mockery.enable({
+        useCleanCache: true
+      });
+
+      mockery.registerMock("request-promise", function() {
+        let response = mockStubs.sendMessageToRoomResponse;
+        return bluebird.resolve(response);
+      });
+
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
+      done();
+    });
+    it("should return all messages sent in room `ERIC` on 28 Feb 2019", function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      sandbox
+        .stub(MatrixRestClient.prototype, "findAllRooms")
+        .resolves(mockStubs.findAllRoomsReturns);
+      sandbox
+        .stub(MatrixRestClient.prototype, "sync")
+        .resolves(mockStubs.syncResponse);
+      let roomName = "ERIC";
+      let requestDate = "28 Feb 2019";
+      let formattedRequestDate = new Date(requestDate).getTime();
+      return client
+        .findMessagesByRoomAndDate(roomName, requestDate)
+        .then(messages => {
+          expect(messages).to.be.an("array");
+          messages.forEach(message => {
+            expect(message).to.have.property("type");
+            expect(message.type).to.equal("m.room.message");
+            expect(message).to.have.property("origin_server_ts");
+            let formattedMessageTimeStamp = new Date(
+              message.origin_server_ts
+            ).toDateString();
+            expect(formattedMessageTimeStamp).to.equal(formattedRequestDate);
+          });
+        });
+    });
+  });
+
+  describe("#findMessagesByRoomAndDateRange()", function() {
+    before(function(done) {
+      mockery.enable({
+        useCleanCache: true
+      });
+
+      mockery.registerMock("request-promise", function() {
+        let response = mockStubs.sendMessageToRoomResponse;
+        return bluebird.resolve(response);
+      });
+
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
+      done();
+    });
+    it("should return all messages sent in room `ERIC` between 21 Feb 2019 and 28 Feb 2019", function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      sandbox
+        .stub(MatrixRestClient.prototype, "findAllRooms")
+        .resolves(mockStubs.findAllRoomsReturns);
+      sandbox
+        .stub(MatrixRestClient.prototype, "sync")
+        .resolves(mockStubs.syncResponse);
+      let roomName = "ERIC";
+      let requestStartDate = "21 Feb 2019";
+      let requestEndDate = "28 Feb 2019";
+      let formattedRequestStartDate = new Date(requestStartDate).getTime();
+      let formattedRequestEndDate = new Date(requestEndDate).getTime();
+      return client
+        .findMessagesByRoomAndDateRange(
+          roomName,
+          requestStartDate,
+          requestEndDate
+        )
+        .then(messages => {
+          expect(messages).to.be.an("array");
+          messages.forEach(message => {
+            expect(message).to.have.property("type");
+            expect(message.type).to.equal("m.room.message");
+            expect(message).to.have.property("origin_server_ts");
+            let formattedMessageTimeStamp = new Date(
+              message.origin_server_ts
+            ).toDateString();
+            expect(formattedMessageTimeStamp)
+              .to.be.at.least(formattedRequestStartDate)
+              .and.not.greaterThan(formattedRequestEndDate);
+          });
+        });
+    });
+  });
 });
