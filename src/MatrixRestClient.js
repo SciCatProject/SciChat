@@ -81,6 +81,31 @@ module.exports = class MatrixRestClient {
       });
   }
 
+  sendMessageToRoom({ roomName, message }) {
+    return this.findRoomByName(roomName)
+      .then(room => {
+        let options = {
+          method: "PUT",
+          uri:
+            this._baseUrl +
+            `/_matrix/client/r0/rooms/${room.room_id}/state/m.room.message`,
+          headers: {
+            Authorization: "Bearer " + this._accessToken
+          },
+          body: {
+            body: message,
+            msgtype: "m.text"
+          },
+          rejectUnauthorized: false,
+          json: true
+        };
+        return requestPromise(options);
+      })
+      .catch(err => {
+        console.error("Error in sendMessageToRoom(): " + err);
+      });
+  }
+
   findEventsByRoom(roomName) {
     let roomId;
     return this.findRoomByName(roomName)
@@ -106,28 +131,21 @@ module.exports = class MatrixRestClient {
       });
   }
 
-  sendMessageToRoom({ roomName, message }) {
-    return this.findRoomByName(roomName)
-      .then(room => {
-        let options = {
-          method: "PUT",
-          uri:
-            this._baseUrl +
-            `/_matrix/client/r0/rooms/${room.room_id}/state/m.room.message`,
-          headers: {
-            Authorization: "Bearer " + this._accessToken
-          },
-          body: {
-            body: message,
-            msgtype: "m.text"
-          },
-          rejectUnauthorized: false,
-          json: true
-        };
-        return requestPromise(options);
+  findMessagesByRoom(roomName) {
+    return this.findEventsByRoom(roomName)
+      .then(roomEvents => {
+        let messages = [];
+        roomEvents.events.forEach(event => {
+          if (this.eventTypeIsMessage(event)) {
+            messages.push(event);
+          }
+        });
+        return new Promise((resolve, reject) => {
+          resolve(messages);
+        });
       })
       .catch(err => {
-        console.error("Error in sendMessageToRoom(): " + err);
+        console.error("Error in findMessagesByRoom(): " + err);
       });
   }
 

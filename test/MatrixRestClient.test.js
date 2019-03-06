@@ -241,6 +241,41 @@ describe("Unit tests for the rest client", function() {
     });
   });
 
+  describe("#findMessagesByRoom()", function() {
+    before(function(done) {
+      mockery.enable({
+        useCleanCache: true
+      });
+
+      mockery.registerMock("request-promise", function() {
+        let response = mockStubs.findMessagesByRoomResponse;
+        return bluebird.resolve(response);
+      });
+
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
+      done();
+    });
+    it("should return an array containing all messages sent in room `ERIC`", function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      sandbox
+        .stub(MatrixRestClient.prototype, "findEventsByRoom")
+        .resolves(mockStubs.findEventsByRoomResponse);
+      let roomName = "ERIC";
+      return client.findMessagesByRoom(roomName).then(messages => {
+        expect(messages).to.be.an("array");
+        messages.forEach(message => {
+          expect(message).to.be.an("object");
+          expect(message).to.have.property("event_id");
+          expect(message.event_id).to.match(/^\$+?/);
+          expect(message).to.have.property("type");
+          expect(message.type).to.equal("m.room.message");
+        });
+      });
+    });
+  });
+
   describe("#findMessagesByRoomAndDate()", function() {
     before(function(done) {
       mockery.enable({

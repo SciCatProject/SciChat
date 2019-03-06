@@ -1602,6 +1602,53 @@ module.exports = {
     ]
   },
 
+  findMessagesByRoomResponse: [
+    {
+      origin_server_ts: 1551197623583,
+      sender: "@scichat:localhost",
+      event_id: "$15511976239DLtHv:localhost",
+      unsigned: [Object],
+      state_key: "",
+      content: [Object],
+      type: "m.room.message"
+    },
+    {
+      origin_server_ts: 1551348890097,
+      sender: "@scichat:localhost",
+      event_id: "$15513488900zaXKz:localhost",
+      unsigned: [Object],
+      state_key: "",
+      content: [Object],
+      type: "m.room.message"
+    },
+    {
+      origin_server_ts: 1551349596774,
+      sender: "@scichat:localhost",
+      event_id: "$15513495962KgzNZ:localhost",
+      unsigned: [Object],
+      state_key: "",
+      content: [Object],
+      type: "m.room.message"
+    },
+    {
+      origin_server_ts: 1551349767774,
+      sender: "@scichat:localhost",
+      event_id: "$15513497673MryJt:localhost",
+      unsigned: [Object],
+      state_key: "",
+      content: [Object],
+      type: "m.room.message"
+    },
+    {
+      origin_server_ts: 1551359026169,
+      sender: "@scichat:localhost",
+      event_id: "$155135902612CcXXh:localhost",
+      unsigned: [Object],
+      content: [Object],
+      type: "m.room.message"
+    }
+  ],
+
   sendMessageToRoomResponse: {
     event_id: "$YUwRidLecu:localhost"
   },
