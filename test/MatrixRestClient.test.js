@@ -95,7 +95,13 @@ describe("Unit tests for the rest client", function() {
     it("should return an object containing the room_id of the new room", function() {
       const MatrixRestClient = require("../src/MatrixRestClient");
       const client = new MatrixRestClient();
-      return client.createRoom().then(newRoom => {
+      let roomOptions = {
+        visibility: "public",
+        room_alias_name: "ERIC",
+        name: "ERIC",
+        topic: "Chat log for ESS ERIC"
+      };
+      return client.createRoom(roomOptions).then(newRoom => {
         expect(newRoom)
           .to.be.an("object")
           .that.has.key("room_id");

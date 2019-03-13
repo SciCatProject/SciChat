@@ -17,7 +17,7 @@ module.exports = class MatrixRestClient {
     this._txnCtr = 0;
   }
 
-  createRoom() {
+  createRoom({visibility, room_alias_name, name, topic}) {
     let options = {
       method: "POST",
       uri: this._baseUrl + "/_matrix/client/r0/createRoom",
@@ -25,10 +25,10 @@ module.exports = class MatrixRestClient {
         Authorization: "Bearer " + this._accessToken
       },
       body: {
-        visibility: "public",
-        room_alias_name: "scicatrest",
-        name: "SciCat Log from rest",
-        topic: "Chat logging for SciCat",
+        visibility: visibility,
+        room_alias_name: room_alias_name,
+        name: name,
+        topic: topic,
         creation_content: {
           "m.federate": false
         }

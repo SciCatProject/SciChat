@@ -3,11 +3,13 @@
 const MatrixRestClient = require("./MatrixRestClient");
 const client = new MatrixRestClient();
 
-let sendMessage = {
-  roomName: "ERIC",
-  message: "Message from synapse with new txnId, now using send."
+let roomOptions = {
+  visibility: "public",
+  room_alias_name: "ERIC",
+  name: "ERIC",
+  topic: "Chat log for ESS ERIC"
 };
 
-client.sendMessageToRoom(sendMessage).then(response => {
-  console.log(response);
+client.findAllRooms().then(rooms => {
+  console.log(rooms);
 });
