@@ -14,6 +14,7 @@ module.exports = class MatrixRestClient {
     this._accessToken = accessToken;
     this._userId = userId;
     this._password = password;
+    this._txnCtr = 0;
   }
 
   createRoom() {
@@ -82,13 +83,14 @@ module.exports = class MatrixRestClient {
   }
 
   sendMessageToRoom({ roomName, message }) {
+    let txnId = this.newTxnId();
     return this.findRoomByName(roomName)
       .then(room => {
         let options = {
           method: "PUT",
           uri:
             this._baseUrl +
-            `/_matrix/client/r0/rooms/${room.room_id}/state/m.room.message`,
+            `/_matrix/client/r0/rooms/${room.room_id}/send/m.room.message/${txnId}`,
           headers: {
             Authorization: "Bearer " + this._accessToken
           },
@@ -303,5 +305,9 @@ module.exports = class MatrixRestClient {
       .catch(err => {
         console.error("Error in sync(): " + err);
       });
+  }
+
+  newTxnId() {
+    return "s" + new Date().getTime() + "." + this._txnCtr++;
   }
 };
