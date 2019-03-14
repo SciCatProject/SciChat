@@ -377,4 +377,31 @@ describe("Unit tests for the rest client", function() {
         });
     });
   });
+  describe("#findUserInfoByUserName()", function() {
+    before(function(done) {
+      mockery.enable({
+        useCleanCache: true
+      });
+
+      mockery.registerMock("request-promise", function() {
+        let response = mockStubs.findUserInfoByUserNameResponse;
+        return bluebird.resolve(response);
+      });
+
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+
+      done();
+    });
+    it("should return an object containing displayname and avatar_url", function() {
+      const MatrixRestClient = require("../src/MatrixRestClient");
+      const client = new MatrixRestClient();
+      let userName = "scicatbot";
+      return client.findUserInfoByUserName(userName).then(userInfo => {
+        expect(userInfo).to.be.an("object");
+        expect(userInfo).to.have.property("avatar_url");
+        expect(userInfo).to.have.property("displayname");
+        expect(userInfo.displayname.toLowerCase()).to.equal(userName.toLowerCase());
+      });
+    });
+  });
 });

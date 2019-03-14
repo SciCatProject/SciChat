@@ -14,10 +14,10 @@ module.exports = class MatrixRestClient {
     this._accessToken = accessToken;
     this._userId = userId;
     this._password = password;
-    this._txnCtr = 0;
+    this._txnCounter = 0;
   }
 
-  createRoom({visibility, room_alias_name, name, topic}) {
+  createRoom({ visibility, room_alias_name, name, topic }) {
     let options = {
       method: "POST",
       uri: this._baseUrl + "/_matrix/client/r0/createRoom",
@@ -90,7 +90,9 @@ module.exports = class MatrixRestClient {
           method: "PUT",
           uri:
             this._baseUrl +
-            `/_matrix/client/r0/rooms/${room.room_id}/send/m.room.message/${txnId}`,
+            `/_matrix/client/r0/rooms/${
+              room.room_id
+            }/send/m.room.message/${txnId}`,
           headers: {
             Authorization: "Bearer " + this._accessToken
           },
@@ -279,6 +281,23 @@ module.exports = class MatrixRestClient {
     });
   }
 
+  findUserInfoByUserName(userName) {
+    let userId = "@" + userName.toLowerCase() + ":scicat03.esss.lu.se";
+    let options = {
+      method: "GET",
+      uri: this._baseUrl + `/_matrix/client/r0/profile/${userId}`,
+      headers: {
+        Authorization: "Bearer " + this._accessToken
+      },
+      rejectUnauthorized: false,
+      json: true
+    };
+
+    return requestPromise(options).catch(err => {
+      console.error("Error in findUserInfoByUserId(): " + err);
+    });
+  }
+
   sync() {
     console.log("Syncing...");
     let options = {
@@ -308,6 +327,6 @@ module.exports = class MatrixRestClient {
   }
 
   newTxnId() {
-    return "s" + new Date().getTime() + "." + this._txnCtr++;
+    return "s" + new Date().getTime() + "." + this._txnCounter++;
   }
 };

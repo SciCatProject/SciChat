@@ -1653,5 +1653,10 @@ module.exports = {
     event_id: "$YUwRidLecu:localhost"
   },
 
+  findUserInfoByUserNameResponse: {
+    avatar_url: "mxc://scicat03.esss.lu.se/MYNocqOFkCBhRPDvgcMErqmO",
+    displayname: "SciCatBot"
+  },
+
   whoAmI: { user_id: "@scichat:localhost" }
 };
