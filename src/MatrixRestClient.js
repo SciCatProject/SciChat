@@ -195,8 +195,52 @@ module.exports = class MatrixRestClient {
       });
   }
 
+  findImageByRoomAndFilename(roomName, filename) {
+    return this.findMessagesByRoom(roomName).then(messages => {
+      messages.forEach(message => {
+        if (
+          this.messageTypeisImage(message) &&
+          this.messageBodyEqualsFilename(message, filename)
+        ) {
+          let serverName = message.content.url.split(/\/+/)[1];
+          let mediaId = message.content.url.split(/\/+/)[2];
+
+          let options = {
+            method: "GET",
+            uri:
+              this._baseUrl +
+              `/_matrix/media/r0/download/${serverName}/${mediaId}`,
+            headers: {
+              Authorization: "Bearer " + this._accessToken
+            },
+            rejectUnauthorized: false
+          };
+          return requestPromise(options).catch(err => {
+            console.log("Error in findImageByRoomAndFilename(): " + err);
+          });
+        }
+      });
+    });
+  }
+
   eventTypeIsMessage(event) {
     if (event.type === "m.room.message") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  messageTypeisImage(message) {
+    if (message.content.msgtype === "m.image") {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  messageBodyEqualsFilename(message, filename) {
+    if (message.content.body.toLowerCase() === filename.toLowerCase()) {
       return true;
     } else {
       return false;

@@ -3,6 +3,6 @@
 const MatrixRestClient = require("./MatrixRestClient");
 const client = new MatrixRestClient();
 
-client.findUserInfoByUserName("scicatbot").then(userInfo => {
-  console.log(userInfo);
+client.findImageByRoomAndFilename("ERIC", "myImage.jpg").then(response => {
+  console.log(response);
 });
