@@ -83,27 +83,29 @@ module.exports = class MatrixRestClient {
   }
 
   findRoomMembers(roomName) {
-    return this.findRoomByName(roomName).then(room => {
-      let options = {
-        method: "GET",
-        uri: this._baseUrl + `/_matrix/client/r0/rooms/${room.room_id}/members`,
-        headers: {
-          Authorization: "Bearer " + this._accessToken
-        },
-        rejectUnauthorized: false,
-        json: true
-      };
+    return this.findRoomByName(roomName)
+      .then(room => {
+        let options = {
+          method: "GET",
+          uri:
+            this._baseUrl + `/_matrix/client/r0/rooms/${room.room_id}/members`,
+          headers: {
+            Authorization: "Bearer " + this._accessToken
+          },
+          rejectUnauthorized: false,
+          json: true
+        };
 
-      return requestPromise(options)
-        .then(members => {
-          return new Promise((resolve, reject) => {
-            resolve(members.chunk);
-          });
-        })
-        .catch(err => {
-          console.error("Error in findRoomMemebers(): " + err);
+        return requestPromise(options);
+      })
+      .then(members => {
+        return new Promise((resolve, reject) => {
+          resolve(members.chunk);
         });
-    });
+      })
+      .catch(err => {
+        console.error("Error in findRoomMemebers(): " + err);
+      });
   }
 
   sendMessageToRoom({ roomName, message }) {
