@@ -3,8 +3,6 @@
 const MatrixRestClient = require("./MatrixRestClient");
 const client = new MatrixRestClient();
 
-client.findRoomMembers("ERIC").then(members => {
-  members.forEach(member => {
-    console.log(member);
-  });
+client.findRoomMembers("ERIC").then(response => {
+  console.log(response);
 });
