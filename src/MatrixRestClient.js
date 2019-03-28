@@ -223,25 +223,38 @@ module.exports = class MatrixRestClient {
 
   findAllImagesByRoom(roomName) {
     return this.findMessagesByRoom(roomName).then(messages => {
-      messages.forEach(message => {
-        if (this.messageTypeisImage(message)) {
-          let serverName = message.content.url.split(/\/+/)[1];
-          let mediaId = message.content.url.split(/\/+/)[2];
-
-          let options = {
-            method: "GET",
-            uri: this._baseUrl + `/_matrix/media/r0/download/${serverName}/${mediaId}`,
-            headers: {
-              Authorization: "Bearer " + this._accessToken
-            },
-            rejectUnauthorized: false
+      return Promise.all(
+        messages.map(message => {
+          if (this.messageTypeisImage(message)) {
+            let serverName = message.content.url.split(/\/+/)[1];
+            let mediaId = message.content.url.split(/\/+/)[2];
+            if (serverName !== undefined && mediaId !== undefined) {
+              let options = {
+                method: "GET",
+                uri:
+                  this._baseUrl +
+                  `/_matrix/media/r0/download/${serverName}/${mediaId}`,
+                headers: {
+                  Authorization: "Bearer " + this._accessToken
+                },
+                rejectUnauthorized: false
+              };
+              return requestPromise(options).catch(err => {
+                console.error("Error in findAllImagesByRoom()" + err);
+              });
+            } else {
+              return new Promise((resolve, reject) => {
+                resolve({});
+              });
+            }
+          } else {
+            return new Promise((resolve, reject) => {
+              resolve({});
+            });
           }
-          return requestPromise(options).catch(err => {
-            console.error("Error in findAllImagesByRoom()" + err)
-          })
-        }
-      })
-    })
+        })
+      );
+    });
   }
 
   findImageByRoomAndFilename(roomName, filename) {

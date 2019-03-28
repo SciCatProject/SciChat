@@ -3,6 +3,6 @@
 const MatrixRestClient = require("./MatrixRestClient");
 const client = new MatrixRestClient();
 
-client.findRoomMembers("ERIC").then(response => {
+client.findAllImagesByRoom("ERIC").then(response => {
   console.log(response);
 });
