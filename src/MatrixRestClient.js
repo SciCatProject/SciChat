@@ -224,35 +224,39 @@ module.exports = class MatrixRestClient {
   findAllImagesByRoom(roomName) {
     return this.findMessagesByRoom(roomName).then(messages => {
       return Promise.all(
-        messages.map(message => {
-          if (this.messageTypeisImage(message)) {
-            let serverName = message.content.url.split(/\/+/)[1];
-            let mediaId = message.content.url.split(/\/+/)[2];
-            if (serverName !== undefined && mediaId !== undefined) {
-              let options = {
-                method: "GET",
-                uri:
-                  this._baseUrl +
-                  `/_matrix/media/r0/download/${serverName}/${mediaId}`,
-                headers: {
-                  Authorization: "Bearer " + this._accessToken
-                },
-                rejectUnauthorized: false
-              };
-              return requestPromise(options).catch(err => {
-                console.error("Error in findAllImagesByRoom()" + err);
-              });
+        messages
+          .map(message => {
+            if (this.messageTypeisImage(message)) {
+              let serverName = message.content.url.split(/\/+/)[1];
+              let mediaId = message.content.url.split(/\/+/)[2];
+              if (serverName !== undefined && mediaId !== undefined) {
+                let options = {
+                  method: "GET",
+                  uri:
+                    this._baseUrl +
+                    `/_matrix/media/r0/download/${serverName}/${mediaId}`,
+                  headers: {
+                    Authorization: "Bearer " + this._accessToken
+                  },
+                  rejectUnauthorized: false
+                };
+                return requestPromise(options).catch(err => {
+                  console.error("Error in findAllImagesByRoom()" + err);
+                });
+              } else {
+                return new Promise((resolve, reject) => {
+                  resolve({});
+                });
+              }
             } else {
               return new Promise((resolve, reject) => {
                 resolve({});
               });
             }
-          } else {
-            return new Promise((resolve, reject) => {
-              resolve({});
-            });
-          }
-        })
+          })
+          .filter(message => {
+            return message.length > 0;
+          })
       );
     });
   }
