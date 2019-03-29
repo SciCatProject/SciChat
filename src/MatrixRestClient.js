@@ -33,7 +33,6 @@ module.exports = class MatrixRestClient {
           "m.federate": false
         }
       },
-      rejectUnauthorized: false,
       json: true
     };
 
@@ -49,7 +48,6 @@ module.exports = class MatrixRestClient {
       headers: {
         Authorization: "Bearer " + this._accessToken
       },
-      rejectUnauthorized: false,
       json: true
     };
 
@@ -92,7 +90,6 @@ module.exports = class MatrixRestClient {
           headers: {
             Authorization: "Bearer " + this._accessToken
           },
-          rejectUnauthorized: false,
           json: true
         };
 
@@ -126,7 +123,6 @@ module.exports = class MatrixRestClient {
             body: message,
             msgtype: "m.text"
           },
-          rejectUnauthorized: false,
           json: true
         };
         return requestPromise(options);
@@ -248,8 +244,7 @@ module.exports = class MatrixRestClient {
               `/_matrix/media/r0/download/${serverName}/${mediaId}`,
             headers: {
               Authorization: "Bearer " + this._accessToken
-            },
-            rejectUnauthorized: false
+            }
           };
           return requestPromise(options).catch(err => {
             console.error("Error in findImageByRoomAndFilename(): " + err);
@@ -333,7 +328,6 @@ module.exports = class MatrixRestClient {
         },
         password: this._password
       },
-      rejectUnauthorized: false,
       json: true
     };
 
@@ -352,7 +346,6 @@ module.exports = class MatrixRestClient {
       body: {
         timeout: 5000
       },
-      rejectUnauthorized: false,
       json: true
     };
 
@@ -369,7 +362,6 @@ module.exports = class MatrixRestClient {
       headers: {
         Authorization: "Bearer " + this._accessToken
       },
-      rejectUnauthorized: false,
       json: true
     };
 
@@ -390,7 +382,6 @@ module.exports = class MatrixRestClient {
         full_state: true,
         timeout: 5000
       },
-      rejectUnauthorized: false,
       json: true
     };
 
