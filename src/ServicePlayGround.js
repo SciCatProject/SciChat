@@ -3,6 +3,11 @@
 const MatrixRestClient = require("./MatrixRestClient");
 const client = new MatrixRestClient();
 
-client.findAllImagesByRoom("ERIC").then(response => {
-  console.log(response);
-});
+client
+  .sync()
+  .then(() => {
+    return client.sendMessageToRoom("Proposal01", "Testing bot message");
+  })
+  .then(res => {
+    console.log(res);
+  });

@@ -14,6 +14,7 @@ module.exports = class MatrixRestClient {
     this._accessToken = accessToken;
     this._userId = userId;
     this._password = password;
+    this._scichatBot = "@scicatbot:scicat03.esss.lu.se";
     this._txnCounter = 0;
   }
 
@@ -33,6 +34,7 @@ module.exports = class MatrixRestClient {
           "m.federate": false
         }
       },
+      rejectUnauthorized: false,
       json: true
     };
 
@@ -48,6 +50,7 @@ module.exports = class MatrixRestClient {
       headers: {
         Authorization: "Bearer " + this._accessToken
       },
+      rejectUnauthorized: false,
       json: true
     };
 
@@ -90,6 +93,7 @@ module.exports = class MatrixRestClient {
           headers: {
             Authorization: "Bearer " + this._accessToken
           },
+          rejectUnauthorized: false,
           json: true
         };
 
@@ -105,26 +109,48 @@ module.exports = class MatrixRestClient {
       });
   }
 
-  sendMessageToRoom({ roomName, message }) {
+  sendMessageToRoom(roomName, message) {
     let txnId = this.newTxnId();
     return this.findRoomByName(roomName)
       .then(room => {
-        let options = {
-          method: "PUT",
-          uri:
-            this._baseUrl +
-            `/_matrix/client/r0/rooms/${
-              room.room_id
-            }/send/m.room.message/${txnId}`,
-          headers: {
-            Authorization: "Bearer " + this._accessToken
-          },
-          body: {
-            body: message,
-            msgtype: "m.text"
-          },
-          json: true
-        };
+        let options;
+        if (this._userId === this._scichatBot) {
+          options = {
+            method: "PUT",
+            uri:
+              this._baseUrl +
+              `/_matrix/client/r0/rooms/${
+                room.room_id
+              }/send/m.room.message/${txnId}`,
+            headers: {
+              Authorization: "Bearer " + this._accessToken
+            },
+            body: {
+              body: message,
+              msgtype: "m.notice"
+            },
+            rejectUnauthorized: false,
+            json: true
+          };
+        } else {
+          options = {
+            method: "PUT",
+            uri:
+              this._baseUrl +
+              `/_matrix/client/r0/rooms/${
+                room.room_id
+              }/send/m.room.message/${txnId}`,
+            headers: {
+              Authorization: "Bearer " + this._accessToken
+            },
+            body: {
+              body: message,
+              msgtype: "m.text"
+            },
+            rejectUnauthorized: false,
+            json: true
+          };
+        }
         return requestPromise(options);
       })
       .catch(err => {
@@ -244,7 +270,8 @@ module.exports = class MatrixRestClient {
               `/_matrix/media/r0/download/${serverName}/${mediaId}`,
             headers: {
               Authorization: "Bearer " + this._accessToken
-            }
+            },
+            rejectUnauthorized: false
           };
           return requestPromise(options).catch(err => {
             console.error("Error in findImageByRoomAndFilename(): " + err);
@@ -328,6 +355,7 @@ module.exports = class MatrixRestClient {
         },
         password: this._password
       },
+      rejectUnauthorized: false,
       json: true
     };
 
@@ -346,6 +374,7 @@ module.exports = class MatrixRestClient {
       body: {
         timeout: 5000
       },
+      rejectUnauthorized: false,
       json: true
     };
 
@@ -362,6 +391,7 @@ module.exports = class MatrixRestClient {
       headers: {
         Authorization: "Bearer " + this._accessToken
       },
+      rejectUnauthorized: false,
       json: true
     };
 
@@ -382,6 +412,7 @@ module.exports = class MatrixRestClient {
         full_state: true,
         timeout: 5000
       },
+      rejectUnauthorized: false,
       json: true
     };
 
