@@ -1,42 +1,23 @@
 "use strict";
 
 const requestPromise = require("request-promise");
-const authData = require("./AuthData");
-
-const baseUrl = authData.baseUrl;
-const accessToken = authData.accessToken;
-const userId = authData.userId;
-const password = authData.password;
+const Utils = require("./Utils");
+const utils = new Utils();
 
 module.exports = class MatrixRestClient {
   constructor() {
-    this._baseUrl = baseUrl;
-    this._accessToken = accessToken;
-    this._userId = userId;
-    this._password = password;
-    this._scichatBot = "@scicatbot:scicat03.esss.lu.se";
-    this._txnCounter = 0;
+    this._userId = "@scicatbot:scicat03.esss.lu.se";
+    this._password = "scicatbot";
   }
 
   createRoom({ visibility, room_alias_name, name, topic }) {
-    let options = {
-      method: "POST",
-      uri: this._baseUrl + "/_matrix/client/r0/createRoom",
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      body: {
-        visibility: visibility,
-        room_alias_name: room_alias_name,
-        name: name,
-        topic: topic,
-        creation_content: {
-          "m.federate": false
-        }
-      },
-      rejectUnauthorized: false,
-      json: true
+    let roomDetails = {
+      visibility: visibility,
+      room_alias_name: room_alias_name,
+      name: name,
+      topic: topic
     };
+    let options = utils.getRequestOptionsForMethod("createRoom", roomDetails);
 
     return requestPromise(options).catch(err => {
       console.error("Error in createRoom(): " + err);
@@ -44,15 +25,7 @@ module.exports = class MatrixRestClient {
   }
 
   findAllRooms() {
-    let options = {
-      method: "GET",
-      uri: this._baseUrl + "/_matrix/client/r0/publicRooms",
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+    let options = utils.getRequestOptionsForMethod("findAllRooms");
 
     return requestPromise(options)
       .then(response => {
@@ -86,16 +59,10 @@ module.exports = class MatrixRestClient {
   findRoomMembers(roomName) {
     return this.findRoomByName(roomName)
       .then(room => {
-        let options = {
-          method: "GET",
-          uri:
-            this._baseUrl + `/_matrix/client/r0/rooms/${room.room_id}/members`,
-          headers: {
-            Authorization: "Bearer " + this._accessToken
-          },
-          rejectUnauthorized: false,
-          json: true
-        };
+        let options = utils.getRequestOptionsForMethod(
+          "findRoomMembers",
+          room.room_id
+        );
 
         return requestPromise(options);
       })
@@ -109,48 +76,18 @@ module.exports = class MatrixRestClient {
       });
   }
 
-  sendMessageToRoom(roomName, message) {
-    let txnId = this.newTxnId();
+  sendMessageToRoom({ roomName, message }) {
     return this.findRoomByName(roomName)
       .then(room => {
-        let options;
-        if (this._userId === this._scichatBot) {
-          options = {
-            method: "PUT",
-            uri:
-              this._baseUrl +
-              `/_matrix/client/r0/rooms/${
-                room.room_id
-              }/send/m.room.message/${txnId}`,
-            headers: {
-              Authorization: "Bearer " + this._accessToken
-            },
-            body: {
-              body: message,
-              msgtype: "m.notice"
-            },
-            rejectUnauthorized: false,
-            json: true
-          };
-        } else {
-          options = {
-            method: "PUT",
-            uri:
-              this._baseUrl +
-              `/_matrix/client/r0/rooms/${
-                room.room_id
-              }/send/m.room.message/${txnId}`,
-            headers: {
-              Authorization: "Bearer " + this._accessToken
-            },
-            body: {
-              body: message,
-              msgtype: "m.text"
-            },
-            rejectUnauthorized: false,
-            json: true
-          };
-        }
+        let messageDetails = {
+          roomId: room.room_id,
+          message: message
+        };
+        let options = utils.getRequestOptionsForMethod(
+          "sendMessageToRoom",
+          messageDetails
+        );
+
         return requestPromise(options);
       })
       .catch(err => {
@@ -186,15 +123,11 @@ module.exports = class MatrixRestClient {
   findMessagesByRoom(roomName) {
     return this.findEventsByRoom(roomName)
       .then(roomEvents => {
-        let messages = [];
-        roomEvents.events.forEach(event => {
-          if (this.eventTypeIsMessage(event)) {
-            messages.push(event);
-          }
-        });
-        return new Promise((resolve, reject) => {
-          resolve(messages);
-        });
+        return Promise.all(
+          roomEvents.events.filter(event => {
+            return utils.eventTypeIsMessage(event);
+          })
+        );
       })
       .catch(err => {
         console.error("Error in findMessagesByRoom(): " + err);
@@ -204,18 +137,14 @@ module.exports = class MatrixRestClient {
   findMessagesByRoomAndDate(roomName, date) {
     return this.findEventsByRoom(roomName)
       .then(roomEvents => {
-        let messages = [];
-        roomEvents.events.forEach(event => {
-          if (
-            this.eventTypeIsMessage(event) &&
-            this.eventDateEqualsRequestDate(event, date)
-          ) {
-            messages.push(event);
-          }
-        });
-        return new Promise((resolve, reject) => {
-          resolve(messages);
-        });
+        return Promise.all(
+          roomEvents.events.filter(event => {
+            return (
+              utils.eventTypeIsMessage(event) &&
+              utils.eventDateEqualsRequestDate(event, date)
+            );
+          })
+        );
       })
       .catch(err => {
         console.error("Error in findMessagesByRoomAndDate(): " + err);
@@ -225,18 +154,14 @@ module.exports = class MatrixRestClient {
   findMessagesByRoomAndDateRange(roomName, startDate, endDate) {
     return this.findEventsByRoom(roomName)
       .then(roomEvents => {
-        let messages = [];
-        roomEvents.events.forEach(event => {
-          if (
-            this.eventTypeIsMessage(event) &&
-            this.eventDateIsBetweenRequestDates(event, startDate, endDate)
-          ) {
-            messages.push(event);
-          }
-        });
-        return new Promise((resolve, reject) => {
-          resolve(messages);
-        });
+        return Promise.all(
+          roomEvents.events.filter(event => {
+            return (
+              utils.eventTypeIsMessage(event) &&
+              utils.eventDateIsBetweenRequestDates(event, startDate, endDate)
+            );
+          })
+        );
       })
       .catch(err => {
         console.error("Error in findMessagesByRoomAndDateRange()" + err);
@@ -247,7 +172,7 @@ module.exports = class MatrixRestClient {
     return this.findMessagesByRoom(roomName).then(messages => {
       return Promise.all(
         messages.filter(message => {
-          return this.messageTypeisImage(message);
+          return utils.messageTypeisImage(message);
         })
       );
     });
@@ -257,22 +182,19 @@ module.exports = class MatrixRestClient {
     return this.findMessagesByRoom(roomName).then(messages => {
       messages.forEach(message => {
         if (
-          this.messageTypeisImage(message) &&
-          this.messageBodyEqualsFilename(message, filename)
+          utils.messageTypeisImage(message) &&
+          utils.messageBodyEqualsFilename(message, filename)
         ) {
-          let serverName = message.content.url.split(/\/+/)[1];
-          let mediaId = message.content.url.split(/\/+/)[2];
-
-          let options = {
-            method: "GET",
-            uri:
-              this._baseUrl +
-              `/_matrix/media/r0/download/${serverName}/${mediaId}`,
-            headers: {
-              Authorization: "Bearer " + this._accessToken
-            },
-            rejectUnauthorized: false
+          let urlData = {
+            serverName: message.content.url.split(/\/+/)[1],
+            mediaId: message.content.url.split(/\/+/)[2]
           };
+
+          let options = utils.getRequestOptionsForMethod(
+            "findImageByRoomAndFilename",
+            urlData
+          );
+          console.log(options.uri);
           return requestPromise(options).catch(err => {
             console.error("Error in findImageByRoomAndFilename(): " + err);
           });
@@ -281,83 +203,10 @@ module.exports = class MatrixRestClient {
     });
   }
 
-  eventTypeIsMessage(event) {
-    if (event.type === "m.room.message") {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  messageTypeisImage(message) {
-    if (message.content.msgtype === "m.image") {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  messageBodyEqualsFilename(message, filename) {
-    if (message.content.body.toLowerCase() === filename.toLowerCase()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  eventDateEqualsRequestDate(event, date) {
-    let messageTimeStamp = new Date(event.origin_server_ts);
-    messageTimeStamp.setUTCHours(0, 0, 0, 0);
-    let requestDate = new Date(date);
-    if (messageTimeStamp.getTime() === requestDate.getTime()) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  eventDateIsBetweenRequestDates(event, startDate, endDate) {
-    let messageTimeStamp = new Date(event.origin_server_ts);
-    messageTimeStamp.setUTCHours(0, 0, 0, 0);
-    let requestStartDate = new Date(startDate);
-    let requestEndDate = new Date(endDate);
-    if (
-      messageTimeStamp.getTime() > requestStartDate.getTime() &&
-      messageTimeStamp.getTime() < requestEndDate.getTime()
-    ) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  printFormattedMessages(messages) {
-    messages.forEach(message => {
-      let messageTimeStamp = new Date(message.origin_server_ts)
-        .toISOString()
-        .replace("T", " ")
-        .replace(/\.\w+/, "");
-      console.log(
-        `[${messageTimeStamp}] ${message.sender} >>> ${message.content.body}`
-      );
-    });
-  }
-
   login() {
-    let options = {
-      method: "POST",
-      uri: this._baseUrl + "/_matrix/client/r0/login",
-      body: {
-        type: "m.login.password",
-        identifier: {
-          type: "m.id.user",
-          user: this._userId
-        },
-        password: this._password
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+    let options = utils.getRequestOptionsForMethod("login");
+    options.body.identifier.user = this._userId;
+    options.body.password = this._password;
 
     return requestPromise(options).catch(err => {
       console.error("Error in login(): " + err);
@@ -365,18 +214,7 @@ module.exports = class MatrixRestClient {
   }
 
   whoAmI() {
-    let options = {
-      method: "GET",
-      uri: this._baseUrl + "/_matrix/client/r0/account/whoami",
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      body: {
-        timeout: 5000
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+    let options = utils.getRequestOptionsForMethod("whoAmI");
 
     return requestPromise(options).catch(err => {
       console.error("Error in whoAmI(): " + err);
@@ -384,16 +222,10 @@ module.exports = class MatrixRestClient {
   }
 
   findUserInfoByUserName(userName) {
-    let userId = "@" + userName.toLowerCase() + ":scicat03.esss.lu.se";
-    let options = {
-      method: "GET",
-      uri: this._baseUrl + `/_matrix/client/r0/profile/${userId}`,
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+    let options = utils.getRequestOptionsForMethod(
+      "findUserInfoByUserName",
+      userName
+    );
 
     return requestPromise(options).catch(err => {
       console.error("Error in findUserInfoByUserId(): " + err);
@@ -401,34 +233,10 @@ module.exports = class MatrixRestClient {
   }
 
   sync() {
-    console.log("Syncing...");
-    let options = {
-      method: "GET",
-      uri: this._baseUrl + "/_matrix/client/r0/sync",
-      headers: {
-        Authorization: "Bearer " + this._accessToken
-      },
-      body: {
-        full_state: true,
-        timeout: 5000
-      },
-      rejectUnauthorized: false,
-      json: true
-    };
+    let options = utils.getRequestOptionsForMethod("sync");
 
-    return requestPromise(options)
-      .then(response => {
-        console.log("Sync succesful");
-        return new Promise((resolve, reject) => {
-          resolve(response);
-        });
-      })
-      .catch(err => {
-        console.error("Error in sync(): " + err);
-      });
-  }
-
-  newTxnId() {
-    return "s" + new Date().getTime() + "." + this._txnCounter++;
+    return requestPromise(options).catch(err => {
+      console.error("Error in sync(): " + err);
+    });
   }
 };

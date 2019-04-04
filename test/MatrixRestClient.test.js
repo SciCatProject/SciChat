@@ -27,7 +27,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -56,7 +56,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -88,7 +88,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -121,7 +121,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -154,7 +154,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -186,7 +186,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -224,7 +224,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -258,7 +258,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -293,7 +293,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -337,7 +337,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
@@ -388,7 +388,7 @@ describe("Unit tests for the rest client", function() {
         return bluebird.resolve(response);
       });
 
-      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData"]);
+      mockery.registerAllowables(["../src/MatrixRestClient", "./AuthData", "./Utils"]);
 
       done();
     });
