@@ -29,9 +29,7 @@ module.exports = class MatrixRestClient {
 
     return requestPromise(options)
       .then(response => {
-        return new Promise((resolve, reject) => {
-          resolve(response.chunk);
-        });
+        return Promise.resolve(response.chunk);
       })
       .catch(err => {
         console.error("Error in findAllRooms(): " + err);
@@ -63,9 +61,7 @@ module.exports = class MatrixRestClient {
         return requestPromise(options);
       })
       .then(members => {
-        return new Promise((resolve, reject) => {
-          resolve(members.chunk);
-        });
+        return Promise.resolve(members.chunk);
       })
       .catch(err => {
         console.error("Error in findRoomMemebers(): " + err);
@@ -107,9 +103,7 @@ module.exports = class MatrixRestClient {
             roomEvents.events = syncResponse.rooms.join[roomId].timeline.events;
           }
         });
-        return new Promise((resolve, reject) => {
-          resolve(roomEvents);
-        });
+        return Promise.resolve(roomEvents);
       })
       .catch(err => {
         console.error("Error in findEventsByRoom(): " + err);
