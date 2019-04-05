@@ -109,9 +109,9 @@ module.exports = class Utils {
           type: "m.login.password",
           identifier: {
             type: "m.id.user",
-            user: "Insert UserId here"
+            user: options.user
           },
-          password: "Insert password here"
+          password: options.password
         };
         return requestOptions;
       }

@@ -41,15 +41,11 @@ module.exports = class MatrixRestClient {
   findRoomByName(requestName) {
     return this.findAllRooms()
       .then(allRooms => {
-        let foundRoom;
-        allRooms.forEach(room => {
-          if (room.name.toLowerCase() === requestName.toLowerCase()) {
-            foundRoom = room;
-          }
-        });
-        return new Promise((resolve, reject) => {
-          resolve(foundRoom);
-        });
+        return Promise.resolve(
+          allRooms.find(room => {
+            return room.name.toLowerCase() === requestName.toLowerCase();
+          })
+        );
       })
       .catch(err => {
         console.error("Error in findRoomByName(): " + err);
@@ -200,9 +196,11 @@ module.exports = class MatrixRestClient {
   }
 
   login() {
-    let options = utils.getRequestOptionsForMethod("login");
-    options.body.identifier.user = this._userId;
-    options.body.password = this._password;
+    let loginData = {
+      user: this._userId,
+      password: this._password
+    };
+    let options = utils.getRequestOptionsForMethod("login", loginData);
 
     return requestPromise(options).catch(err => {
       console.error("Error in login(): " + err);
