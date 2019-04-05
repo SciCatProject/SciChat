@@ -179,26 +179,22 @@ module.exports = class MatrixRestClient {
   }
 
   findImageByRoomAndFilename(roomName, filename) {
-    return this.findMessagesByRoom(roomName).then(messages => {
-      messages.forEach(message => {
-        if (
-          utils.messageTypeisImage(message) &&
-          utils.messageBodyEqualsFilename(message, filename)
-        ) {
-          let urlData = {
-            serverName: message.content.url.split(/\/+/)[1],
-            mediaId: message.content.url.split(/\/+/)[2]
-          };
+    return this.findAllImagesByRoom(roomName).then(images => {
+      let foundImage = images.find(image => {
+        return utils.messageBodyEqualsFilename(image, filename);
+      });
+      let urlData = {
+        serverName: foundImage.content.url.split(/\/+/)[1],
+        mediaId: foundImage.content.url.split(/\/+/)[2]
+      };
 
-          let options = utils.getRequestOptionsForMethod(
-            "findImageByRoomAndFilename",
-            urlData
-          );
-          console.log(options.uri);
-          return requestPromise(options).catch(err => {
-            console.error("Error in findImageByRoomAndFilename(): " + err);
-          });
-        }
+      let options = utils.getRequestOptionsForMethod(
+        "findImageByRoomAndFilename",
+        urlData
+      );
+
+      return requestPromise(options).catch(err => {
+        console.error("Error in findImageByRoomAndFilename(): " + err);
       });
     });
   }
