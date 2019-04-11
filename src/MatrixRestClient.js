@@ -1,5 +1,7 @@
 "use strict";
 
+const fs = require("fs");
+const request = require("request");
 const requestPromise = require("request-promise");
 const Utils = require("./Utils");
 const utils = new Utils();
@@ -168,7 +170,7 @@ module.exports = class MatrixRestClient {
     });
   }
 
-  findImageByRoomAndFilename(roomName, filename) {
+  downloadImageFromRoom(roomName, filename, savePath) {
     return this.findAllImagesByRoom(roomName).then(images => {
       let foundImage = images.find(image => {
         return utils.messageBodyEqualsFilename(image, filename);
@@ -183,7 +185,17 @@ module.exports = class MatrixRestClient {
         urlData
       );
 
-      return requestPromise(options).catch(err => {
+      const file = fs.createWriteStream(savePath);
+
+      return Promise.resolve(
+        request(options)
+          .on("error", err => {
+            console.error(err);
+          })
+          .on("response", response => {
+            response.pipe(file);
+          })
+      ).catch(err => {
         console.error("Error in findImageByRoomAndFilename(): " + err);
       });
     });

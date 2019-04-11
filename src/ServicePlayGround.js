@@ -3,6 +3,8 @@
 const MatrixRestClient = require("./MatrixRestClient");
 const client = new MatrixRestClient();
 
-client.findRoomByName("ERIC").then(res => {
+let savePath = `${__dirname}/temp/SciCatLogo.png`;
+
+client.downloadImageFromRoom("ERIC", "SciCatLogo.png", savePath).then(res => {
   console.log(res);
 });
