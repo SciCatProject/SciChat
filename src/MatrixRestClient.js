@@ -175,14 +175,12 @@ module.exports = class MatrixRestClient {
       let foundImage = images.find(image => {
         return utils.messageBodyEqualsFilename(image, filename);
       });
-      let urlData = {
-        serverName: foundImage.content.url.split(/\/+/)[1],
-        mediaId: foundImage.content.url.split(/\/+/)[2]
-      };
+
+      let imgUrl = foundImage.content.url.slice(6);
 
       let options = utils.getRequestOptionsForMethod(
         "findImageByRoomAndFilename",
-        urlData
+        imgUrl
       );
 
       const file = fs.createWriteStream(savePath);

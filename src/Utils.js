@@ -130,8 +130,7 @@ module.exports = class Utils {
       case "findImageByRoomAndFilename": {
         requestOptions.method = "GET";
         requestOptions.uri =
-          this._baseUrl +
-          `/_matrix/media/r0/download/${options.serverName}/${options.mediaId}`;
+          this._baseUrl + `/_matrix/media/r0/download/${options}`;
         return requestOptions;
       }
       case "sendMessageToRoom": {
